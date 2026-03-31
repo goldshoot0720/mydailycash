@@ -17,6 +17,79 @@ PRIZES = {
 
 TICKET_PRICE = 50
 
+LAYOUT_PROFILES = {
+    "laptop": {
+        "window_width_ratio": 0.76,
+        "window_height_ratio": 0.86,
+        "min_window_width": 1080,
+        "max_window_width": 1420,
+        "min_window_height": 760,
+        "max_window_height": 940,
+        "minsize": (1024, 700),
+        "root_padding": 12,
+        "header_padding": (6, 4, 6, 8),
+        "form_padding": 12,
+        "form_pady": (6, 10),
+        "mode_row_pady": (0, 10),
+        "entry_holder_padding": (4, 2),
+        "entry_padx": 8,
+        "entry_pady": 4,
+        "entry_width": 6,
+        "entry_font": 12,
+        "button_row_pady": (10, 0),
+        "summary_label_pady": (10, 0),
+        "summary_frame_pady": (0, 8),
+        "summary_card_padding": 10,
+        "summary_card_columns": 4,
+        "summary_card_compact_columns": 2,
+        "table_padding": 10,
+        "header_font": 21,
+        "subheader_font": 10,
+        "summary_value_font": 16,
+        "summary_note_font": 9,
+        "single_columns": 5,
+        "wide_combo_columns": 5,
+        "compact_combo_columns": 4,
+        "compact_width_threshold": 1280,
+        "table_height": 18,
+    },
+    "desktop": {
+        "window_width_ratio": 0.84,
+        "window_height_ratio": 0.88,
+        "min_window_width": 1360,
+        "max_window_width": 1760,
+        "min_window_height": 860,
+        "max_window_height": 1100,
+        "minsize": (1220, 760),
+        "root_padding": 18,
+        "header_padding": (8, 6, 8, 10),
+        "form_padding": 16,
+        "form_pady": (8, 12),
+        "mode_row_pady": (0, 14),
+        "entry_holder_padding": (6, 4),
+        "entry_padx": 12,
+        "entry_pady": 6,
+        "entry_width": 7,
+        "entry_font": 13,
+        "button_row_pady": (14, 0),
+        "summary_label_pady": (12, 0),
+        "summary_frame_pady": (0, 12),
+        "summary_card_padding": 14,
+        "summary_card_columns": 4,
+        "summary_card_compact_columns": 2,
+        "table_padding": 12,
+        "header_font": 24,
+        "subheader_font": 11,
+        "summary_value_font": 19,
+        "summary_note_font": 10,
+        "single_columns": 5,
+        "wide_combo_columns": 6,
+        "compact_combo_columns": 5,
+        "compact_width_threshold": 1500,
+        "table_height": 20,
+    },
+}
+
 
 def get_index_html_path():
     if getattr(sys, "frozen", False):
@@ -197,6 +270,8 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("今彩539 Python GUI 版")
+        self.layout_profile_name = self._detect_layout_profile()
+        self.layout_profile = LAYOUT_PROFILES[self.layout_profile_name]
         self.mode_var = tk.StringVar(value="single")
         self.pack_index_var = tk.IntVar(value=-1)
         self.entries = []
@@ -205,6 +280,15 @@ class App(tk.Tk):
         self.summary_cards = []
         self.entry_grid = None
         self.summary_frame = None
+        self.root_frame = None
+        self.header_frame = None
+        self.form_frame = None
+        self.mode_row = None
+        self.button_row = None
+        self.summary_label = None
+        self.table_box = None
+        self.header_label = None
+        self.subheader_label = None
         self._last_entry_columns = None
         self._last_summary_columns = None
         self._last_visible_count = None
@@ -216,15 +300,23 @@ class App(tk.Tk):
         self._clear_results()
         self.bind("<Configure>", self._on_window_resize)
 
+    def _detect_layout_profile(self):
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        if screen_width >= 1800 or (screen_width >= 1600 and screen_height >= 900):
+            return "desktop"
+        return "laptop"
+
     def _configure_window(self):
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-        width = min(max(int(screen_width * 0.76), 1080), 1420)
-        height = min(max(int(screen_height * 0.86), 760), 940)
+        profile = self.layout_profile
+        width = min(max(int(screen_width * profile["window_width_ratio"]), profile["min_window_width"]), profile["max_window_width"])
+        height = min(max(int(screen_height * profile["window_height_ratio"]), profile["min_window_height"]), profile["max_window_height"])
         x = max((screen_width - width) // 2, 0)
         y = max((screen_height - height) // 2, 0)
         self.geometry(f"{width}x{height}+{x}+{y}")
-        self.minsize(1024, 700)
+        self.minsize(*profile["minsize"])
 
     def _build_ui(self):
         style = ttk.Style(self)
@@ -232,35 +324,33 @@ class App(tk.Tk):
             style.theme_use("clam")
         except tk.TclError:
             pass
-
-        style.configure("Header.TLabel", font=("Microsoft JhengHei", 21, "bold"))
-        style.configure("Subheader.TLabel", font=("Microsoft JhengHei", 10))
-        style.configure("SummaryValue.TLabel", font=("Microsoft JhengHei", 16, "bold"))
-        style.configure("SummaryNote.TLabel", font=("Microsoft JhengHei", 9))
+        self._apply_style_profile(style)
 
         self.configure(bg="#f6ead1")
-        root = ttk.Frame(self, padding=12)
-        root.pack(fill="both", expand=True)
+        self.root_frame = ttk.Frame(self, padding=self.layout_profile["root_padding"])
+        self.root_frame.pack(fill="both", expand=True)
 
-        header = ttk.Frame(root, padding=(6, 4, 6, 8))
-        header.pack(fill="x")
-        ttk.Label(header, text="今彩539 Python GUI 版", style="Header.TLabel").pack(anchor="w")
-        ttk.Label(header, text="支援單注、包牌、6連碰、7連碰、8連碰、9連碰收益試算。", style="Subheader.TLabel").pack(anchor="w", pady=(4, 0))
+        self.header_frame = ttk.Frame(self.root_frame, padding=self.layout_profile["header_padding"])
+        self.header_frame.pack(fill="x")
+        self.header_label = ttk.Label(self.header_frame, text="今彩539 Python GUI 版", style="Header.TLabel")
+        self.header_label.pack(anchor="w")
+        self.subheader_label = ttk.Label(self.header_frame, text="支援單注、包牌、6連碰、7連碰、8連碰、9連碰收益試算。", style="Subheader.TLabel")
+        self.subheader_label.pack(anchor="w", pady=(4, 0))
 
-        form = ttk.LabelFrame(root, text="輸入設定", padding=12)
-        form.pack(fill="x", pady=(6, 10))
+        self.form_frame = ttk.LabelFrame(self.root_frame, text="輸入設定", padding=self.layout_profile["form_padding"])
+        self.form_frame.pack(fill="x", pady=self.layout_profile["form_pady"])
 
-        mode_row = ttk.Frame(form)
-        mode_row.pack(fill="x", pady=(0, 10))
+        self.mode_row = ttk.Frame(self.form_frame)
+        self.mode_row.pack(fill="x", pady=self.layout_profile["mode_row_pady"])
         for mode, label in [("single", "單注 / 包牌"), ("combo6", "6連碰"), ("combo7", "7連碰"), ("combo8", "8連碰"), ("combo9", "9連碰")]:
-            ttk.Radiobutton(mode_row, text=label, value=mode, variable=self.mode_var, command=self._apply_mode).pack(side="left", padx=(0, 8))
+            ttk.Radiobutton(self.mode_row, text=label, value=mode, variable=self.mode_var, command=self._apply_mode).pack(side="left", padx=(0, 8))
 
-        self.entry_grid = ttk.Frame(form)
+        self.entry_grid = ttk.Frame(self.form_frame)
         self.entry_grid.pack(anchor="w")
         for index in range(9):
-            holder = ttk.Frame(self.entry_grid, padding=(4, 2))
+            holder = ttk.Frame(self.entry_grid, padding=self.layout_profile["entry_holder_padding"])
             ttk.Label(holder, text=f"號碼 {index + 1}").pack(anchor="center")
-            entry = ttk.Entry(holder, width=6, justify="center", font=("Microsoft JhengHei", 12))
+            entry = ttk.Entry(holder, width=self.layout_profile["entry_width"], justify="center", font=("Microsoft JhengHei", self.layout_profile["entry_font"]))
             entry.pack(pady=(2, 3))
             pack_button = ttk.Button(holder, text="包牌", width=8, command=lambda idx=index: self.toggle_pack(idx))
             pack_button.pack()
@@ -268,38 +358,46 @@ class App(tk.Tk):
             self.pack_buttons.append(pack_button)
             self.entry_holders.append(holder)
 
-        button_row = ttk.Frame(form)
-        button_row.pack(fill="x", pady=(10, 0))
-        ttk.Button(button_row, text="開始比對", command=self.analyze).pack(side="left")
-        ttk.Button(button_row, text="帶入範例", command=self.fill_sample).pack(side="left", padx=8)
-        ttk.Button(button_row, text="清除號碼", command=self.clear_inputs).pack(side="left")
+        self.button_row = ttk.Frame(self.form_frame)
+        self.button_row.pack(fill="x", pady=self.layout_profile["button_row_pady"])
+        ttk.Button(self.button_row, text="開始比對", command=self.analyze).pack(side="left")
+        ttk.Button(self.button_row, text="帶入範例", command=self.fill_sample).pack(side="left", padx=8)
+        ttk.Button(self.button_row, text="清除號碼", command=self.clear_inputs).pack(side="left")
 
         self.summary_var = tk.StringVar(value="尚未開始比對。")
-        ttk.Label(form, textvariable=self.summary_var, font=("Microsoft JhengHei", 10)).pack(anchor="w", pady=(10, 0))
+        self.summary_label = ttk.Label(self.form_frame, textvariable=self.summary_var, font=("Microsoft JhengHei", 10))
+        self.summary_label.pack(anchor="w", pady=self.layout_profile["summary_label_pady"])
 
-        self.summary_frame = ttk.Frame(root)
-        self.summary_frame.pack(fill="x", pady=(0, 8))
+        self.summary_frame = ttk.Frame(self.root_frame)
+        self.summary_frame.pack(fill="x", pady=self.layout_profile["summary_frame_pady"])
         self.stat_vars = {"draws": tk.StringVar(value=str(len(DRAWS))), "cost": tk.StringVar(value="NT$0"), "prize": tk.StringVar(value="NT$0"), "net": tk.StringVar(value="NT$0")}
         for key, label in [("draws", "連續簽注期數"), ("cost", "總投注成本"), ("prize", "總中獎獎金"), ("net", "淨收益")]:
-            card = ttk.LabelFrame(self.summary_frame, text=label, padding=10)
+            card = ttk.LabelFrame(self.summary_frame, text=label, padding=self.layout_profile["summary_card_padding"])
             ttk.Label(card, textvariable=self.stat_vars[key], style="SummaryValue.TLabel").pack(anchor="w")
             ttk.Label(card, text="依目前玩法與歷史期數更新。", style="SummaryNote.TLabel").pack(anchor="w", pady=(4, 0))
             self.summary_cards.append(card)
 
-        table_box = ttk.LabelFrame(root, text="每期對獎結果", padding=10)
-        table_box.pack(fill="both", expand=True)
+        self.table_box = ttk.LabelFrame(self.root_frame, text="每期對獎結果", padding=self.layout_profile["table_padding"])
+        self.table_box.pack(fill="both", expand=True)
         columns = ("issue", "date", "numbers", "match", "prize", "detail")
-        self.tree = ttk.Treeview(table_box, columns=columns, show="headings", height=20)
+        self.tree = ttk.Treeview(self.table_box, columns=columns, show="headings", height=self.layout_profile["table_height"])
         headings = {"issue": "期別", "date": "日期", "numbers": "開出號碼", "match": "對中情況", "prize": "獎金", "detail": "明細"}
         widths = {"issue": 110, "date": 110, "numbers": 220, "match": 120, "prize": 140, "detail": 320}
         for column in columns:
             self.tree.heading(column, text=headings[column])
             self.tree.column(column, width=widths[column], minwidth=96, anchor="w", stretch=True)
         self.tree.pack(side="left", fill="both", expand=True)
-        scrollbar = ttk.Scrollbar(table_box, orient="vertical", command=self.tree.yview)
+        scrollbar = ttk.Scrollbar(self.table_box, orient="vertical", command=self.tree.yview)
         scrollbar.pack(side="right", fill="y")
         self.tree.configure(yscrollcommand=scrollbar.set)
         self._relayout_summary_cards()
+
+    def _apply_style_profile(self, style):
+        profile = self.layout_profile
+        style.configure("Header.TLabel", font=("Microsoft JhengHei", profile["header_font"], "bold"))
+        style.configure("Subheader.TLabel", font=("Microsoft JhengHei", profile["subheader_font"]))
+        style.configure("SummaryValue.TLabel", font=("Microsoft JhengHei", profile["summary_value_font"], "bold"))
+        style.configure("SummaryNote.TLabel", font=("Microsoft JhengHei", profile["summary_note_font"]))
 
     def _apply_mode(self):
         mode = self.mode_var.get()
@@ -323,12 +421,13 @@ class App(tk.Tk):
                 button.configure(state="disabled", text="包牌")
 
     def _entry_columns_for_width(self, visible_count):
+        profile = self.layout_profile
         width = max(self.winfo_width(), self.winfo_reqwidth())
         if visible_count <= 5:
-            return visible_count
-        if width >= 1360:
-            return min(5, visible_count)
-        return min(4, visible_count)
+            return min(profile["single_columns"], visible_count)
+        if width >= profile["compact_width_threshold"]:
+            return min(profile["wide_combo_columns"], visible_count)
+        return min(profile["compact_combo_columns"], visible_count)
 
     def _relayout_entry_holders(self, visible_count=None):
         visible_count = visible_count or LotteryCalculator.visible_count(self.mode_var.get())
@@ -350,17 +449,18 @@ class App(tk.Tk):
                 holder.grid_remove()
                 continue
             row, column = divmod(index, columns)
-            holder.grid(row=row, column=column, padx=8, pady=4, sticky="w")
+            holder.grid(row=row, column=column, padx=self.layout_profile["entry_padx"], pady=self.layout_profile["entry_pady"], sticky="w")
 
         for column in range(columns):
             self.entry_grid.grid_columnconfigure(column, weight=0)
 
     def _summary_columns_for_width(self):
+        profile = self.layout_profile
         width = max(self.winfo_width(), self.winfo_reqwidth())
-        if width >= 1180:
-            return 4
+        if width >= profile["compact_width_threshold"]:
+            return profile["summary_card_columns"]
         if width >= 900:
-            return 2
+            return profile["summary_card_compact_columns"]
         return 1
 
     def _relayout_summary_cards(self):
