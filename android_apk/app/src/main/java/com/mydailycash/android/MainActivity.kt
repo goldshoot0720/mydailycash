@@ -71,6 +71,13 @@ private data class DrawResult(
     val prize: Int,
 )
 
+private data class AnalysisSummary(
+    val drawCount: Int,
+    val costTotal: Int,
+    val prizeTotal: Int,
+    val netTotal: Int,
+)
+
 private val prizes = mapOf(
     0 to 0,
     1 to 0,
@@ -100,12 +107,26 @@ private val draws = listOf(
 @Composable
 private fun DailyCashApp() {
     val inputs = remember { mutableStateListOf("", "", "", "", "") }
-    var status by remember { mutableStateOf("Enter 5 unique numbers from 1 to 39.") }
-    var results by remember { mutableStateOf(analyzeSelection(listOf(6, 8, 20, 22, 32))) }
+    var status by remember { mutableStateOf("請輸入 5 個 1 到 39 的不重複號碼。") }
+    var results by remember { mutableStateOf<List<DrawResult>>(emptyList()) }
 
-    val costTotal = results.size * ticketPrice
-    val prizeTotal = results.sumOf { it.prize }
-    val netTotal = prizeTotal - costTotal
+    val summary = if (results.isEmpty()) {
+        AnalysisSummary(
+            drawCount = 0,
+            costTotal = 0,
+            prizeTotal = 0,
+            netTotal = 0,
+        )
+    } else {
+        val prizeTotal = results.sumOf { it.prize }
+        val costTotal = results.size * ticketPrice
+        AnalysisSummary(
+            drawCount = results.size,
+            costTotal = costTotal,
+            prizeTotal = prizeTotal,
+            netTotal = prizeTotal - costTotal,
+        )
+    }
 
     Scaffold { innerPadding ->
         LazyColumn(
@@ -132,7 +153,7 @@ private fun DailyCashApp() {
                             fontWeight = FontWeight.Bold,
                         )
                         Text(
-                            text = "Pick 5 numbers and compare them against the latest draw history.",
+                            text = "輸入 5 個號碼後，比對最近開獎資料並計算中獎與損益。",
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     }
@@ -146,7 +167,7 @@ private fun DailyCashApp() {
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Text(
-                            text = "Selection",
+                            text = "選號",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                         )
@@ -158,7 +179,7 @@ private fun DailyCashApp() {
                                     inputs[index] = next.filter(Char::isDigit).take(2)
                                 },
                                 modifier = Modifier.fillMaxWidth(),
-                                label = { Text("Number ${index + 1}") },
+                                label = { Text("號碼 ${index + 1}") },
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             )
@@ -170,14 +191,15 @@ private fun DailyCashApp() {
                                     runCatching { parseSelection(inputs) }
                                         .onSuccess { numbers ->
                                             results = analyzeSelection(numbers)
-                                            status = "Analyzed ${results.size} draws."
+                                            status = "已分析 ${results.size} 期資料。"
                                         }
                                         .onFailure { error ->
-                                            status = error.message ?: "Invalid input."
+                                            results = emptyList()
+                                            status = error.message ?: "輸入內容有誤。"
                                         }
                                 },
                             ) {
-                                Text("Analyze")
+                                Text("開始分析")
                             }
 
                             TextButton(
@@ -186,10 +208,10 @@ private fun DailyCashApp() {
                                         inputs[index] = ""
                                     }
                                     results = emptyList()
-                                    status = "Selection cleared."
+                                    status = "已清除選號。"
                                 },
                             ) {
-                                Text("Clear")
+                                Text("清除")
                             }
                         }
 
@@ -204,15 +226,21 @@ private fun DailyCashApp() {
 
             item {
                 SummaryCard(
-                    drawCount = results.size,
-                    costTotal = costTotal,
-                    prizeTotal = prizeTotal,
-                    netTotal = netTotal,
+                    drawCount = summary.drawCount,
+                    costTotal = summary.costTotal,
+                    prizeTotal = summary.prizeTotal,
+                    netTotal = summary.netTotal,
                 )
             }
 
-            items(results) { result ->
-                ResultCard(result)
+            if (results.isEmpty()) {
+                item {
+                    EmptyStateCard()
+                }
+            } else {
+                items(results) { result ->
+                    ResultCard(result)
+                }
             }
         }
     }
@@ -220,19 +248,19 @@ private fun DailyCashApp() {
 
 private fun parseSelection(inputs: List<String>): List<Int> {
     if (inputs.any { it.isBlank() }) {
-        error("Please fill in all 5 numbers.")
+        error("請填滿 5 個號碼。")
     }
 
     val numbers = inputs.map { value ->
-        value.toIntOrNull() ?: error("All inputs must be numeric.")
+        value.toIntOrNull() ?: error("所有欄位都必須是數字。")
     }
 
     if (numbers.any { it !in 1..39 }) {
-        error("Numbers must be between 1 and 39.")
+        error("號碼必須介於 1 到 39。")
     }
 
     if (numbers.toSet().size != numbers.size) {
-        error("Numbers must be unique.")
+        error("號碼不可重複。")
     }
 
     return numbers
@@ -263,16 +291,37 @@ private fun SummaryCard(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Text(
-                text = "Summary",
+                text = "分析摘要",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )
-            Text("Draws analyzed: $drawCount")
-            Text("Ticket cost: ${formatCurrency(costTotal)}")
-            Text("Prize total: ${formatCurrency(prizeTotal)}")
+            Text("分析期數：$drawCount")
+            Text("總成本：${formatCurrency(costTotal)}")
+            Text("總獎金：${formatCurrency(prizeTotal)}")
             Text(
-                text = "Net result: ${formatCurrency(netTotal)}",
+                text = "淨損益：${formatCurrency(netTotal)}",
                 color = if (netTotal >= 0) Color(0xFF1B8C4A) else Color(0xFFC4473A),
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmptyStateCard() {
+    Card(shape = RoundedCornerShape(24.dp)) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = "尚未分析",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = "請輸入 5 個號碼後按下開始分析。",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.secondary,
             )
         }
     }
@@ -287,12 +336,12 @@ private fun ResultCard(result: DrawResult) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
-                text = "Issue ${result.draw.issue}",
+                text = "期號 ${result.draw.issue}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                text = "Date ${result.draw.rocDate}",
+                text = "日期 ${result.draw.rocDate}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.secondary,
             )
@@ -306,8 +355,8 @@ private fun ResultCard(result: DrawResult) {
                 }
             }
 
-            Text("Hits: ${result.hits.size}")
-            Text("Prize: ${formatCurrency(result.prize)}")
+            Text("命中數：${result.hits.size}")
+            Text("獎金：${formatCurrency(result.prize)}")
         }
     }
 }
