@@ -3,6 +3,12 @@ package com.mydailycash.android
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,6 +20,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,13 +45,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mydailycash.android.ui.theme.MyDailyCashAndroidTheme
 import kotlin.math.abs
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -692,11 +707,103 @@ private fun ModeSelector(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ResultCard(result: DrawResult) {
-    Card(shape = RoundedCornerShape(24.dp)) {
+    val isJackpot = result.prizeName == "頭獎"
+    val transition = rememberInfiniteTransition(label = "jackpot")
+    val scale by transition.animateFloat(
+        initialValue = 1f,
+        targetValue = if (isJackpot) 1.02f else 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1400, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "jackpot-scale",
+    )
+    val glowAlpha by transition.animateFloat(
+        initialValue = if (isJackpot) 0.35f else 0f,
+        targetValue = if (isJackpot) 0.85f else 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1100, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "jackpot-glow",
+    )
+    val sweep by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = if (isJackpot) 1f else 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2200),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "jackpot-sweep",
+    )
+
+    val cardColors = if (isJackpot) {
+        CardDefaults.cardColors(containerColor = Color(0xFFFFF4D6))
+    } else {
+        CardDefaults.cardColors()
+    }
+
+    Card(
+        shape = RoundedCornerShape(24.dp),
+        colors = cardColors,
+        modifier = Modifier
+            .graphicsLayer {
+                if (isJackpot) {
+                    shadowElevation = 26.dp.toPx()
+                    spotShadowColor = Color(0xFFFFB300)
+                    ambientShadowColor = Color(0xFFFFD54F)
+                }
+            }
+            .scale(scale),
+    ) {
         Column(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    if (isJackpot) {
+                        Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xFFFFF7DB),
+                                Color(0xFFFFE082).copy(alpha = 0.92f),
+                                Color(0xFFFFFDE7),
+                            ),
+                            start = Offset.Zero,
+                            end = Offset(1000f, 600f),
+                        )
+                    } else {
+                        Brush.linearGradient(
+                            colors = listOf(Color.Transparent, Color.Transparent),
+                        )
+                    },
+                )
+                .border(
+                    width = if (isJackpot) 2.dp else 1.dp,
+                    brush = if (isJackpot) {
+                        Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xFFFFC107).copy(alpha = glowAlpha),
+                                Color(0xFFFFECB3),
+                                Color(0xFFFFA000).copy(alpha = glowAlpha),
+                            ),
+                            start = Offset(1200f * sweep, 0f),
+                            end = Offset(1200f * (1f - sweep), 700f),
+                        )
+                    } else {
+                        Brush.linearGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.outline.copy(alpha = 0.18f),
+                                MaterialTheme.colorScheme.outline.copy(alpha = 0.18f),
+                            ),
+                        )
+                    },
+                    shape = RoundedCornerShape(24.dp),
+                )
+                .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            if (isJackpot) {
+                JackpotBanner(glowAlpha = glowAlpha)
+            }
             Text(
                 text = "期號 ${result.draw.issue}",
                 style = MaterialTheme.typography.titleMedium,
@@ -725,7 +832,82 @@ private fun ResultCard(result: DrawResult) {
             Text("標記：${result.tagLabel}")
             Text(result.detail)
             Text("獎項：${result.prizeName}")
-            Text("獎金：${formatCurrency(result.prize)}")
+            Text(
+                text = "獎金：${formatCurrency(result.prize)}",
+                color = if (isJackpot) Color(0xFF9A6700) else MaterialTheme.colorScheme.onSurface,
+                fontWeight = if (isJackpot) FontWeight.ExtraBold else FontWeight.Normal,
+            )
+        }
+    }
+}
+
+@Composable
+private fun JackpotBanner(glowAlpha: Float) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFFFFC107).copy(alpha = 0.95f),
+                        Color(0xFFFFE082),
+                        Color(0xFFFFF8E1),
+                    ),
+                ),
+            )
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+    ) {
+        JackpotSparkles(
+            modifier = Modifier
+                .matchParentSize()
+                .alpha(0.9f),
+            glowAlpha = glowAlpha,
+        )
+
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(
+                text = "頭獎命中",
+                color = Color(0xFF5D3A00),
+                fontWeight = FontWeight.ExtraBold,
+                style = MaterialTheme.typography.titleLarge,
+            )
+            Text(
+                text = "金色特效已啟動，這期就是全場焦點。",
+                color = Color(0xFF7A5200),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+    }
+}
+
+@Composable
+private fun JackpotSparkles(modifier: Modifier = Modifier, glowAlpha: Float) {
+    androidx.compose.foundation.Canvas(modifier = modifier) {
+        val sparkles = listOf(
+            Triple(0.12f, 0.28f, 10f),
+            Triple(0.22f, 0.7f, 7f),
+            Triple(0.48f, 0.18f, 8f),
+            Triple(0.76f, 0.32f, 9f),
+            Triple(0.87f, 0.62f, 11f),
+        )
+        sparkles.forEachIndexed { index, (xFactor, yFactor, radius) ->
+            val pulse = 0.55f + glowAlpha * (0.35f + index * 0.05f)
+            val center = Offset(size.width * xFactor, size.height * yFactor)
+            drawCircle(
+                color = Color.White.copy(alpha = pulse),
+                radius = radius,
+                center = center,
+            )
+            repeat(4) { arm ->
+                val angle = arm * (PI.toFloat() / 2f)
+                val delta = Offset(cos(angle) * radius * 1.8f, sin(angle) * radius * 1.8f)
+                drawCircle(
+                    color = Color(0xFFFFF3C4).copy(alpha = glowAlpha * 0.9f),
+                    radius = radius * 0.28f,
+                    center = center + delta,
+                )
+            }
         }
     }
 }
