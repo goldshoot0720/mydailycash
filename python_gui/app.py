@@ -16,6 +16,7 @@ PRIZES = {
 }
 
 TICKET_PRICE = 50
+JACKPOT_PRIZE = PRIZES[5]
 
 LAYOUT_PROFILES = {
     "laptop": {
@@ -295,6 +296,12 @@ class App(tk.Tk):
         self.table_box = None
         self.header_label = None
         self.subheader_label = None
+        self.summary_note_labels = []
+        self._jackpot_flash_job = None
+        self._jackpot_flash_steps = 0
+        self._default_bg = "#f6ead1"
+        self._jackpot_banner = None
+        self._jackpot_banner_job = None
         self._last_entry_columns = None
         self._last_summary_columns = None
         self._last_visible_count = None
@@ -332,7 +339,7 @@ class App(tk.Tk):
             pass
         self._apply_style_profile(style)
 
-        self.configure(bg="#f6ead1")
+        self.configure(bg=self._default_bg)
         self.root_frame = ttk.Frame(self, padding=self.layout_profile["root_padding"])
         self.root_frame.pack(fill="both", expand=True)
 
@@ -382,7 +389,9 @@ class App(tk.Tk):
         for key, label in [("draws", "連續簽注期數"), ("cost", "總投注成本"), ("prize", "總中獎獎金"), ("net", "淨收益")]:
             card = ttk.LabelFrame(self.summary_frame, text=label, padding=self.layout_profile["summary_card_padding"])
             ttk.Label(card, textvariable=self.stat_vars[key], style="SummaryValue.TLabel").pack(anchor="w")
-            ttk.Label(card, text="依目前玩法與歷史期數更新。", style="SummaryNote.TLabel").pack(anchor="w", pady=(4, 0))
+            note_label = ttk.Label(card, text="依目前玩法與歷史期數更新。", style="SummaryNote.TLabel")
+            note_label.pack(anchor="w", pady=(4, 0))
+            self.summary_note_labels.append(note_label)
             self.summary_cards.append(card)
 
         self.table_box = ttk.LabelFrame(self.root_frame, text="每期對獎結果", padding=self.layout_profile["table_padding"])
@@ -538,12 +547,93 @@ class App(tk.Tk):
         self._clear_results()
 
     def _clear_results(self):
+        self._stop_jackpot_effect()
         for row in self.tree.get_children():
             self.tree.delete(row)
         self.stat_vars["draws"].set(str(len(DRAWS)))
         self.stat_vars["cost"].set("NT$0")
         self.stat_vars["prize"].set("NT$0")
         self.stat_vars["net"].set("NT$0")
+        for label in self.summary_note_labels:
+            label.configure(text="依目前玩法與歷史期數更新。")
+
+    def _stop_jackpot_effect(self):
+        if self._jackpot_flash_job is not None:
+            self.after_cancel(self._jackpot_flash_job)
+            self._jackpot_flash_job = None
+        if self._jackpot_banner_job is not None:
+            self.after_cancel(self._jackpot_banner_job)
+            self._jackpot_banner_job = None
+        if self._jackpot_banner is not None and self._jackpot_banner.winfo_exists():
+            self._jackpot_banner.destroy()
+            self._jackpot_banner = None
+        self._jackpot_flash_steps = 0
+        self.configure(bg=self._default_bg)
+
+    def _run_jackpot_flash(self):
+        colors = [self._default_bg, "#fff7cc", "#ffe58f", "#fff1b8"]
+        self.configure(bg=colors[self._jackpot_flash_steps % len(colors)])
+        self._jackpot_flash_steps += 1
+        if self._jackpot_flash_steps < 12:
+            self._jackpot_flash_job = self.after(150, self._run_jackpot_flash)
+        else:
+            self.configure(bg=self._default_bg)
+            self._jackpot_flash_job = None
+            self._jackpot_flash_steps = 0
+
+    def _show_jackpot_banner(self, selection, jackpot_rows):
+        if self._jackpot_banner is not None and self._jackpot_banner.winfo_exists():
+            self._jackpot_banner.destroy()
+
+        banner = tk.Toplevel(self)
+        banner.title("頭獎慶祝")
+        banner.configure(bg="#7a4b00")
+        banner.transient(self)
+        banner.resizable(False, False)
+        banner.attributes("-topmost", True)
+
+        width = 520
+        height = 280
+        x = self.winfo_rootx() + max((self.winfo_width() - width) // 2, 0)
+        y = self.winfo_rooty() + max((self.winfo_height() - height) // 2, 0)
+        banner.geometry(f"{width}x{height}+{x}+{y}")
+
+        frame = tk.Frame(banner, bg="#fff4cc", bd=4, relief="ridge")
+        frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        tk.Label(frame, text="JACKPOT", font=("Microsoft JhengHei", 16, "bold"), bg="#fff4cc", fg="#a05a00").pack(pady=(18, 6))
+        tk.Label(frame, text="恭喜中頭獎", font=("Microsoft JhengHei", 28, "bold"), bg="#fff4cc", fg="#8a1f11").pack()
+        tk.Label(frame, text=f"NT${JACKPOT_PRIZE:,}", font=("Microsoft JhengHei", 30, "bold"), bg="#fff4cc", fg="#b8860b").pack(pady=(10, 8))
+
+        issue_list = "、".join(row["issue"] for row in jackpot_rows[:2])
+        if len(jackpot_rows) > 2:
+            issue_list += "..."
+        tk.Label(frame, text=f"玩法：{selection['label']}", font=("Microsoft JhengHei", 11), bg="#fff4cc", fg="#5c4033").pack()
+        tk.Label(frame, text=f"頭獎期別：{issue_list}", font=("Microsoft JhengHei", 11), bg="#fff4cc", fg="#5c4033").pack(pady=(4, 0))
+
+        tk.Button(frame, text="收下好運", font=("Microsoft JhengHei", 11, "bold"), bg="#d48806", fg="white", activebackground="#faad14", activeforeground="white", relief="flat", command=banner.destroy).pack(pady=(18, 0))
+
+        self._jackpot_banner = banner
+        self._jackpot_banner_job = self.after(5000, self._close_jackpot_banner)
+
+    def _close_jackpot_banner(self):
+        self._jackpot_banner_job = None
+        if self._jackpot_banner is not None and self._jackpot_banner.winfo_exists():
+            self._jackpot_banner.destroy()
+        self._jackpot_banner = None
+
+    def _trigger_jackpot_effect(self, selection, jackpot_rows):
+        self.bell()
+        self.summary_var.set(f"頭獎爆擊！玩法 {selection['label']} 命中 {len(jackpot_rows)} 期頭獎，單期獎金 NT${JACKPOT_PRIZE:,}。")
+        for label in self.summary_note_labels:
+            label.configure(text="恭喜命中頭獎，已啟動慶祝特效。")
+        if self._jackpot_flash_job is None:
+            self._run_jackpot_flash()
+        self._show_jackpot_banner(selection, jackpot_rows)
+        issue_list = "、".join(row["issue"] for row in jackpot_rows[:3])
+        if len(jackpot_rows) > 3:
+            issue_list += "..."
+        messagebox.showinfo("恭喜中頭獎", f"恭喜命中今彩539頭獎！\n\n中獎玩法：{selection['label']}\n頭獎期別：{issue_list}\n單期獎金：NT${JACKPOT_PRIZE:,}")
 
     def analyze(self):
         try:
@@ -562,6 +652,9 @@ class App(tk.Tk):
         self.stat_vars["prize"].set(f"NT${result['prize_total']:,}")
         self.stat_vars["net"].set(f"NT${result['net_total']:,}")
         self.summary_var.set(f"已完成比對，玩法 {selection['label']}，中獎 {result['wins']} 期，成本 NT${result['cost_total']:,}，總獎金 NT${result['prize_total']:,}。")
+        jackpot_rows = [row for row in result["rows"] if row["prize"] >= JACKPOT_PRIZE]
+        if jackpot_rows:
+            self._trigger_jackpot_effect(selection, jackpot_rows)
 
 
 if __name__ == "__main__":
