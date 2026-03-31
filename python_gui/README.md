@@ -34,6 +34,10 @@ zsh python_gui/build_macos.sh
 
 `dist/MyDailyCash.app`
 
+打包前會自動用下列素材產生 macOS `.icns` 圖示：
+
+`python_gui/assets/macos_app_icon.svg`
+
 若要產生可上傳到 GitHub Release 的壓縮檔，可再執行：
 
 ```bash

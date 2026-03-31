@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title>MyDailyCash macOS app icon</title>
+  <desc>A warm lottery-inspired app icon with number balls and a summary card.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF2D9"/>
+      <stop offset="52%" stop-color="#F7C86A"/>
+      <stop offset="100%" stop-color="#D96B2B"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF9EF"/>
+      <stop offset="100%" stop-color="#FCE6BA"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#7B341E" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="url(#bg)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="204" y="200" width="616" height="624" rx="88" fill="url(#panel)"/>
+    <rect x="204" y="200" width="616" height="624" rx="88" fill="none" stroke="#A24B1B" stroke-opacity="0.16" stroke-width="8"/>
+
+    <rect x="252" y="252" width="520" height="114" rx="40" fill="#A9471F"/>
+    <text x="512" y="323" text-anchor="middle" font-size="84" font-family="Arial, sans-serif" font-weight="700" fill="#FFF8ED">539</text>
+
+    <g font-family="Arial, sans-serif" font-weight="700" text-anchor="middle">
+      <g>
+        <circle cx="340" cy="475" r="78" fill="#C84E36"/>
+        <text x="340" y="501" font-size="86" fill="#FFF9EE">06</text>
+      </g>
+      <g>
+        <circle cx="512" cy="475" r="78" fill="#E7A12B"/>
+        <text x="512" y="501" font-size="86" fill="#FFF9EE">20</text>
+      </g>
+      <g>
+        <circle cx="684" cy="475" r="78" fill="#2D6F77"/>
+        <text x="684" y="501" font-size="86" fill="#FFF9EE">32</text>
+      </g>
+    </g>
+
+    <g>
+      <rect x="270" y="610" width="504" height="54" rx="27" fill="#F0D08F"/>
+      <rect x="270" y="692" width="338" height="40" rx="20" fill="#E5BE71"/>
+      <rect x="624" y="692" width="150" height="40" rx="20" fill="#C84E36"/>
+      <text x="352" y="720" font-size="34" font-family="Arial, sans-serif" font-weight="700" fill="#734223">NT$ 1,250</text>
+      <text x="698" y="720" font-size="30" font-family="Arial, sans-serif" font-weight="700" fill="#FFF7EA">WIN</text>
+    </g>
+  </g>
+</svg>

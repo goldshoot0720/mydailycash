@@ -14,3 +14,7 @@ dist/
 
 # macOS app archives
 *.zip
+.DS_Store
+python_gui/assets/*.icns
+python_gui/assets/*.png
+python_gui/assets/*.iconset/
