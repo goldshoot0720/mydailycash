@@ -1,0 +1,50 @@
+name: Release Windows Python EXE
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build dependencies
+        run: python -m pip install --upgrade pip -r python_gui/requirements-build.txt
+
+      - name: Build Windows EXE
+        shell: powershell
+        run: |
+          python -m PyInstaller --noconfirm --clean --onefile --windowed --name mydailycash-python-gui --add-data "index.html;." .\python_gui\app.py
+
+      - name: Prepare EXE asset
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item dist\mydailycash-python-gui.exe "dist\MyDailyCash-windows-$env:GITHUB_REF_NAME.exe" -Force
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyDailyCash-windows-exe
+          path: dist\MyDailyCash-windows-*.exe
+
+      - name: Publish GitHub release asset
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist\MyDailyCash-windows-*.exe
+          generate_release_notes: true
