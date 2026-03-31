@@ -112,7 +112,7 @@
     }
 
     h1 {
-      font-size: clamp(2rem, 3.2vw, 3.9rem);
+      font-size: clamp(1.45rem, 2.3vw, 2.7rem);
       line-height: 0.98;
       max-width: none;
       white-space: nowrap;
@@ -234,7 +234,6 @@
     .layout > .panel:first-child .form-grid {
       grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
       grid-template-areas:
-        "copy mode"
         "copy numbers"
         "actions actions"
         "meta meta";
@@ -250,7 +249,6 @@
     }
 
     .mode-row {
-      grid-area: mode;
       justify-content: flex-start;
       align-self: start;
       min-height: 38px;
@@ -276,7 +274,7 @@
 
     .mode-row {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 10px;
       align-items: center;
     }
@@ -574,7 +572,6 @@
         grid-template-columns: 1fr;
         grid-template-areas:
           "copy"
-          "mode"
           "numbers"
           "actions"
           "meta";
@@ -597,6 +594,10 @@
       }
 
       .actions {
+        flex-wrap: wrap;
+      }
+
+      .mode-row {
         flex-wrap: wrap;
       }
 
@@ -653,14 +654,13 @@
           <div class="input-copy">
             <h2>輸入號碼</h2>
             <p class="helper">請輸入 5 個不重複號碼，或把其中一欄切成包牌，<br>改用 4 固定號碼加 35 注配號收益試算。</p>
-          </div>
-
-          <div class="mode-row">
-            <button class="mode-btn active" data-mode="single" type="button">單注 / 包牌</button>
-            <button class="mode-btn" data-mode="combo6" type="button">6連碰</button>
-            <button class="mode-btn" data-mode="combo7" type="button">7連碰</button>
-            <button class="mode-btn" data-mode="combo8" type="button">8連碰</button>
-            <button class="mode-btn" data-mode="combo9" type="button">9連碰</button>
+            <div class="mode-row">
+              <button class="mode-btn active" data-mode="single" type="button">單注 / 包牌</button>
+              <button class="mode-btn" data-mode="combo6" type="button">6連碰</button>
+              <button class="mode-btn" data-mode="combo7" type="button">7連碰</button>
+              <button class="mode-btn" data-mode="combo8" type="button">8連碰</button>
+              <button class="mode-btn" data-mode="combo9" type="button">9連碰</button>
+            </div>
           </div>
 
           <div class="number-grid" id="number-grid">
