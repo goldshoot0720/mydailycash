@@ -1,6 +1,7 @@
 ﻿import json
 import math
 import re
+import sys
 import tkinter as tk
 from pathlib import Path
 from tkinter import messagebox, ttk
@@ -15,8 +16,21 @@ PRIZES = {
 }
 
 TICKET_PRICE = 50
-REPO_ROOT = Path(__file__).resolve().parent.parent
-INDEX_HTML = REPO_ROOT / "index.html"
+
+
+def get_index_html_path():
+    if getattr(sys, "frozen", False):
+        bundle_dir = Path(getattr(sys, "_MEIPASS", Path(sys.executable).resolve().parent))
+        bundled_index = bundle_dir / "index.html"
+        if bundled_index.exists():
+            return bundled_index
+        return Path(sys.executable).resolve().parent / "index.html"
+
+    repo_root = Path(__file__).resolve().parent.parent
+    return repo_root / "index.html"
+
+
+INDEX_HTML = get_index_html_path()
 
 
 def load_draws():
@@ -190,6 +204,7 @@ class App(tk.Tk):
         self.pack_index_var = tk.IntVar(value=-1)
         self.entries = []
         self.pack_buttons = []
+        self.entry_holders = []
 
         self._build_ui()
         self._apply_mode()
@@ -269,6 +284,12 @@ class App(tk.Tk):
         visible = LotteryCalculator.visible_count(mode)
         if mode != "single":
             self.pack_index_var.set(-1)
+
+        for index, holder in enumerate(self.entry_holders):
+            if index < visible:
+                holder.grid()
+            else:
+                holder.grid_remove()
 
         for index, entry in enumerate(self.entries):
             if index < visible:

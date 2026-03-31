@@ -1,9 +1,7 @@
-# Python GUI 版本
+﻿# Python GUI 版本
 
-這個子項目提供 `tkinter` 桌面版介面，支援：
-
-- 單注
-- 包牌
+這個子項目提供 `tkinter` 桌面版，支援：
+- 單注 / 包牌
 - 6連碰
 - 7連碰
 - 8連碰
@@ -17,7 +15,25 @@
 python .\python_gui\app.py
 ```
 
+若要略過快取重新啟動，可使用：
+
+```powershell
+python -B .\python_gui\app.py
+```
+
+## 打包 EXE
+
+在專案根目錄執行：
+
+```powershell
+python -m PyInstaller --noconfirm --clean --onefile --windowed --name mydailycash-python-gui --add-data "index.html;." .\python_gui\app.py
+```
+
+輸出檔案會在：
+
+`dist\mydailycash-python-gui.exe`
+
 ## 說明
 
-- 不需要額外安裝第三方套件。
-- 目前內建的是與網頁版相同的 115 年度今彩539資料快照。
+- GUI 版會讀取專案中的 `index.html` 內建開獎資料
+- 打包成 EXE 時，也會把 `index.html` 一起封裝進執行檔

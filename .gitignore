@@ -6,3 +6,8 @@ android_apk/app/build/
 android_apk/gradle-8.9/
 android_apk/gradle-8.9-bin.zip
 android_apk/local.properties
+# PyInstaller
+build/
+dist/
+*.spec
+
