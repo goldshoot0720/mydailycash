@@ -42,15 +42,17 @@ LAYOUT_PROFILES = {
         "summary_card_padding": 10,
         "summary_card_columns": 4,
         "summary_card_compact_columns": 2,
+        "summary_wide_width_threshold": 1040,
         "table_padding": 10,
         "header_font": 21,
         "subheader_font": 10,
         "summary_value_font": 16,
         "summary_note_font": 9,
+        "tree_font": 10,
+        "tree_heading_font": 10,
+        "tree_row_height": 30,
         "single_columns": 5,
-        "wide_combo_columns": 5,
-        "compact_combo_columns": 4,
-        "compact_width_threshold": 1280,
+        "wide_width_threshold": 1180,
         "table_height": 18,
     },
     "desktop": {
@@ -77,15 +79,17 @@ LAYOUT_PROFILES = {
         "summary_card_padding": 14,
         "summary_card_columns": 4,
         "summary_card_compact_columns": 2,
+        "summary_wide_width_threshold": 1280,
         "table_padding": 12,
         "header_font": 24,
         "subheader_font": 11,
         "summary_value_font": 19,
         "summary_note_font": 10,
+        "tree_font": 11,
+        "tree_heading_font": 10,
+        "tree_row_height": 32,
         "single_columns": 5,
-        "wide_combo_columns": 6,
-        "compact_combo_columns": 5,
-        "compact_width_threshold": 1500,
+        "wide_width_threshold": 1500,
         "table_height": 20,
     },
 }
@@ -286,6 +290,8 @@ class App(tk.Tk):
         self.mode_row = None
         self.button_row = None
         self.summary_label = None
+        self.mode_hint_var = tk.StringVar(value="")
+        self.mode_hint_label = None
         self.table_box = None
         self.header_label = None
         self.subheader_label = None
@@ -344,6 +350,8 @@ class App(tk.Tk):
         self.mode_row.pack(fill="x", pady=self.layout_profile["mode_row_pady"])
         for mode, label in [("single", "單注 / 包牌"), ("combo6", "6連碰"), ("combo7", "7連碰"), ("combo8", "8連碰"), ("combo9", "9連碰")]:
             ttk.Radiobutton(self.mode_row, text=label, value=mode, variable=self.mode_var, command=self._apply_mode).pack(side="left", padx=(0, 8))
+        self.mode_hint_label = ttk.Label(self.form_frame, textvariable=self.mode_hint_var, font=("Microsoft JhengHei", 9))
+        self.mode_hint_label.pack(anchor="w", pady=(0, 8))
 
         self.entry_grid = ttk.Frame(self.form_frame)
         self.entry_grid.pack(anchor="w")
@@ -398,6 +406,8 @@ class App(tk.Tk):
         style.configure("Subheader.TLabel", font=("Microsoft JhengHei", profile["subheader_font"]))
         style.configure("SummaryValue.TLabel", font=("Microsoft JhengHei", profile["summary_value_font"], "bold"))
         style.configure("SummaryNote.TLabel", font=("Microsoft JhengHei", profile["summary_note_font"]))
+        style.configure("Treeview", font=("Microsoft JhengHei", profile["tree_font"]), rowheight=profile["tree_row_height"])
+        style.configure("Treeview.Heading", font=("Microsoft JhengHei", profile["tree_heading_font"], "bold"))
 
     def _apply_mode(self):
         mode = self.mode_var.get()
@@ -420,14 +430,24 @@ class App(tk.Tk):
             else:
                 button.configure(state="disabled", text="包牌")
 
+        mode_copy = {
+            "single": "目前模式：單注 / 包牌，請輸入 5 個號碼。",
+            "combo6": "目前模式：6連碰，請輸入 6 個號碼。",
+            "combo7": "目前模式：7連碰，請輸入 7 個號碼。",
+            "combo8": "目前模式：8連碰，請輸入 8 個號碼。",
+            "combo9": "目前模式：9連碰，請輸入 9 個號碼。",
+        }
+        self.mode_hint_var.set(mode_copy.get(mode, ""))
+
     def _entry_columns_for_width(self, visible_count):
-        profile = self.layout_profile
-        width = max(self.winfo_width(), self.winfo_reqwidth())
-        if visible_count <= 5:
-            return min(profile["single_columns"], visible_count)
-        if width >= profile["compact_width_threshold"]:
-            return min(profile["wide_combo_columns"], visible_count)
-        return min(profile["compact_combo_columns"], visible_count)
+        return visible_count
+
+    def _entry_horizontal_padding(self, visible_count):
+        if visible_count >= 9:
+            return 4
+        if visible_count >= 7:
+            return 6
+        return self.layout_profile["entry_padx"]
 
     def _relayout_entry_holders(self, visible_count=None):
         visible_count = visible_count or LotteryCalculator.visible_count(self.mode_var.get())
@@ -449,7 +469,7 @@ class App(tk.Tk):
                 holder.grid_remove()
                 continue
             row, column = divmod(index, columns)
-            holder.grid(row=row, column=column, padx=self.layout_profile["entry_padx"], pady=self.layout_profile["entry_pady"], sticky="w")
+            holder.grid(row=row, column=column, padx=self._entry_horizontal_padding(visible_count), pady=self.layout_profile["entry_pady"], sticky="w")
 
         for column in range(columns):
             self.entry_grid.grid_columnconfigure(column, weight=0)
@@ -457,7 +477,7 @@ class App(tk.Tk):
     def _summary_columns_for_width(self):
         profile = self.layout_profile
         width = max(self.winfo_width(), self.winfo_reqwidth())
-        if width >= profile["compact_width_threshold"]:
+        if width >= profile["summary_wide_width_threshold"]:
             return profile["summary_card_columns"]
         if width >= 900:
             return profile["summary_card_compact_columns"]
