@@ -15,6 +15,8 @@
       --line: oklch(0.84 0.04 78);
       --orange: oklch(0.77 0.17 63);
       --orange-deep: oklch(0.63 0.18 49);
+      --gold: oklch(0.86 0.16 88);
+      --gold-deep: oklch(0.72 0.17 74);
       --red: oklch(0.64 0.22 28);
       --green: oklch(0.64 0.16 145);
       --shadow: 0 22px 48px color-mix(in oklab, var(--orange) 14%, transparent);
@@ -452,6 +454,7 @@
     }
 
     .draw-row {
+      position: relative;
       display: grid;
       grid-template-columns: minmax(132px, 178px) minmax(0, 1fr) minmax(112px, 132px) minmax(118px, 160px);
       gap: 12px;
@@ -460,6 +463,139 @@
       border-radius: 22px;
       background: white;
       border: 1px solid color-mix(in oklab, var(--line) 72%, white);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .draw-row.jackpot {
+      border-color: color-mix(in oklab, var(--gold) 66%, white);
+      box-shadow:
+        0 18px 34px color-mix(in oklab, var(--gold) 24%, transparent),
+        inset 0 1px 0 color-mix(in oklab, white 70%, var(--gold));
+      background:
+        linear-gradient(135deg, color-mix(in oklab, white 92%, var(--gold)) 0%, white 44%, color-mix(in oklab, white 90%, var(--gold)) 100%);
+    }
+
+    .draw-row.jackpot::before,
+    .draw-row.jackpot::after {
+      content: "";
+      position: absolute;
+      inset: -30%;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.8;
+    }
+
+    .draw-row.jackpot::before {
+      background:
+        radial-gradient(circle at 18% 24%, color-mix(in oklab, white 20%, var(--gold)) 0 2px, transparent 3px),
+        radial-gradient(circle at 34% 78%, color-mix(in oklab, white 24%, var(--gold)) 0 3px, transparent 4px),
+        radial-gradient(circle at 62% 18%, color-mix(in oklab, white 18%, var(--gold)) 0 2px, transparent 3px),
+        radial-gradient(circle at 78% 68%, color-mix(in oklab, white 16%, var(--gold)) 0 3px, transparent 4px),
+        radial-gradient(circle at 90% 30%, color-mix(in oklab, white 10%, var(--gold)) 0 2px, transparent 3px);
+      animation: jackpotSparkle 1.8s linear infinite;
+    }
+
+    .draw-row.jackpot::after {
+      background: linear-gradient(115deg, transparent 30%, color-mix(in oklab, white 65%, var(--gold)) 50%, transparent 70%);
+      transform: translateX(-140%) skewX(-18deg);
+      animation: jackpotSweep 2.4s ease-in-out infinite;
+    }
+
+    .jackpot-burst,
+    .jackpot-confetti {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .jackpot-burst {
+      z-index: 0;
+      opacity: 0.9;
+    }
+
+    .jackpot-burst::before,
+    .jackpot-burst::after {
+      content: "";
+      position: absolute;
+      width: 132px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      mix-blend-mode: screen;
+      background:
+        radial-gradient(circle, color-mix(in oklab, white 22%, var(--gold)) 0 8%, transparent 9%),
+        repeating-conic-gradient(from 0deg, color-mix(in oklab, white 15%, var(--gold)) 0 8deg, transparent 8deg 18deg);
+      animation: jackpotBurst 1.9s ease-out infinite;
+    }
+
+    .jackpot-burst::before {
+      top: -34px;
+      right: 42px;
+    }
+
+    .jackpot-burst::after {
+      bottom: -46px;
+      left: 24px;
+      width: 104px;
+      animation-delay: 0.35s;
+    }
+
+    .jackpot-confetti {
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .jackpot-confetti span {
+      position: absolute;
+      top: -12px;
+      width: 8px;
+      height: 18px;
+      border-radius: 999px;
+      opacity: 0;
+      transform: translateY(-20px) rotate(0deg);
+      animation: jackpotConfetti 2.8s linear infinite;
+    }
+
+    .jackpot-confetti span:nth-child(1) {
+      left: 8%;
+      background: color-mix(in oklab, white 12%, var(--gold));
+      animation-delay: 0s;
+    }
+
+    .jackpot-confetti span:nth-child(2) {
+      left: 18%;
+      background: color-mix(in oklab, white 4%, var(--red));
+      animation-delay: 0.4s;
+    }
+
+    .jackpot-confetti span:nth-child(3) {
+      left: 31%;
+      background: color-mix(in oklab, white 8%, var(--orange));
+      animation-delay: 0.9s;
+    }
+
+    .jackpot-confetti span:nth-child(4) {
+      left: 49%;
+      background: color-mix(in oklab, white 16%, var(--gold-deep));
+      animation-delay: 0.2s;
+    }
+
+    .jackpot-confetti span:nth-child(5) {
+      left: 63%;
+      background: color-mix(in oklab, white 6%, var(--red));
+      animation-delay: 1.15s;
+    }
+
+    .jackpot-confetti span:nth-child(6) {
+      left: 78%;
+      background: color-mix(in oklab, white 8%, var(--orange-deep));
+      animation-delay: 0.65s;
+    }
+
+    .jackpot-confetti span:nth-child(7) {
+      left: 88%;
+      background: color-mix(in oklab, white 14%, var(--gold));
+      animation-delay: 1.45s;
     }
 
     .issue-block {
@@ -517,6 +653,19 @@
       font-size: 1rem;
     }
 
+    .prize-box.jackpot {
+      padding: 8px 12px;
+      border-radius: 18px;
+      background: color-mix(in oklab, white 82%, var(--gold));
+      box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--gold) 34%, white);
+    }
+
+    .prize.jackpot {
+      color: color-mix(in oklab, var(--gold-deep) 58%, var(--orange-deep));
+      text-shadow: 0 0 12px color-mix(in oklab, var(--gold) 34%, transparent);
+      animation: jackpotPulse 1.2s ease-in-out infinite;
+    }
+
     .tag {
       padding: 5px 10px;
       border-radius: 999px;
@@ -528,6 +677,86 @@
 
     .tag.win {
       background: var(--red);
+    }
+
+    .tag.jackpot {
+      color: color-mix(in oklab, var(--gold-deep) 72%, var(--orange-deep));
+      background: linear-gradient(135deg, color-mix(in oklab, white 12%, var(--gold)), color-mix(in oklab, white 46%, var(--gold-deep)));
+      box-shadow:
+        0 10px 24px color-mix(in oklab, var(--gold) 28%, transparent),
+        inset 0 1px 0 color-mix(in oklab, white 65%, var(--gold));
+      animation: jackpotPulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes jackpotPulse {
+      0%, 100% {
+        transform: scale(1);
+        filter: saturate(1);
+      }
+      50% {
+        transform: scale(1.06);
+        filter: saturate(1.15);
+      }
+    }
+
+    @keyframes jackpotSweep {
+      0% {
+        transform: translateX(-140%) skewX(-18deg);
+      }
+      55%, 100% {
+        transform: translateX(150%) skewX(-18deg);
+      }
+    }
+
+    @keyframes jackpotSparkle {
+      0%, 100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 0.55;
+      }
+      50% {
+        transform: scale(1.08) rotate(8deg);
+        opacity: 0.95;
+      }
+    }
+
+    @keyframes jackpotBurst {
+      0% {
+        transform: scale(0.45);
+        opacity: 0;
+      }
+      18% {
+        opacity: 0.88;
+      }
+      100% {
+        transform: scale(1.22);
+        opacity: 0;
+      }
+    }
+
+    @keyframes jackpotConfetti {
+      0% {
+        opacity: 0;
+        transform: translateY(-20px) rotate(0deg);
+      }
+      12% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(132px) rotate(300deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .draw-row.jackpot::before,
+      .draw-row.jackpot::after,
+      .jackpot-burst::before,
+      .jackpot-burst::after,
+      .jackpot-confetti span,
+      .tag.jackpot,
+      .prize.jackpot {
+        animation: none;
+      }
     }
 
     .source-note a {
@@ -1248,7 +1477,8 @@
       updateSummary(analyzed, selection);
 
       resultsNode.innerHTML = analyzed.map((draw) => `
-        <article class="draw-row">
+        <article class="draw-row${draw.matchCount === 5 && draw.tagLabel === "頭獎" ? " jackpot" : ""}">
+          ${draw.matchCount === 5 && draw.tagLabel === "頭獎" ? '<div class="jackpot-burst" aria-hidden="true"></div><div class="jackpot-confetti" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>' : ""}
           <div class="issue-block">
             <div class="issue">第 ${draw.issue} 期</div>
             <div class="date">${draw.rocDate} / ${parseRocDate(draw.rocDate)}</div>
@@ -1256,10 +1486,10 @@
           <div class="balls">${renderBalls(draw.numbers, selectedSet, draw.packCoveredSet)}</div>
           <div class="match-box">
             <div class="match-count">${draw.matchLabel}</div>
-            <div class="tag${draw.prize > 0 ? " win" : ""}">${draw.tagLabel}</div>
+            <div class="tag${draw.prize > 0 ? " win" : ""}${draw.matchCount === 5 && draw.tagLabel === "頭獎" ? " jackpot" : ""}">${draw.tagLabel}</div>
           </div>
-          <div class="prize-box">
-            <div class="prize">${formatCurrency(draw.prize)}</div>
+          <div class="prize-box${draw.matchCount === 5 && draw.tagLabel === "頭獎" ? " jackpot" : ""}">
+            <div class="prize${draw.matchCount === 5 && draw.tagLabel === "頭獎" ? " jackpot" : ""}">${formatCurrency(draw.prize)}</div>
             <div class="date">${draw.detailHtml}</div>
           </div>
         </article>
