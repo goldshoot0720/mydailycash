@@ -15,6 +15,7 @@ The `python_gui/` folder is a standalone Python desktop app.
 - Tag release trigger: push a tag like `v1.0.3`
 
 When the workflow runs on GitHub, it builds `dist/MyDailyCash.app`, zips it as `dist/MyDailyCash-macos.zip`, and attaches that zip to the GitHub release.
+If the Apple signing secrets are configured in GitHub, the same workflow will also sign and notarize the app before uploading the release asset.
 
 ## Android APK subproject
 

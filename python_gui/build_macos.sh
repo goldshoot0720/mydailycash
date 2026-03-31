@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 ICON_PATH="$REPO_ROOT/python_gui/assets/MyDailyCash.icns"
+BUNDLE_ID="${MACOS_BUNDLE_ID:-com.goldshoot0720.mydailycash}"
 
 cd "$REPO_ROOT"
 
@@ -15,6 +16,7 @@ python3 -m PyInstaller \
   --windowed \
   --onedir \
   --name MyDailyCash \
+  --osx-bundle-identifier "$BUNDLE_ID" \
   --icon "$ICON_PATH" \
   --add-data "$REPO_ROOT/index.html:." \
   "$REPO_ROOT/python_gui/app.py"

@@ -12,6 +12,8 @@ permissions:
 jobs:
   build-macos:
     runs-on: macos-latest
+    env:
+      MACOS_BUNDLE_ID: com.goldshoot0720.mydailycash
 
     steps:
       - name: Check out repository
@@ -28,7 +30,22 @@ jobs:
       - name: Build macOS app bundle
         run: zsh python_gui/build_macos.sh
 
+      - name: Make macOS helper scripts executable
+        run: chmod +x python_gui/build_macos.sh python_gui/generate_macos_icon.sh python_gui/sign_and_notarize_macos.sh
+
+      - name: Sign and notarize macOS app
+        if: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 != '' && secrets.MACOS_CERTIFICATE_PASSWORD != '' && secrets.MACOS_SIGNING_IDENTITY != '' && secrets.APPLE_ID != '' && secrets.APPLE_APP_SPECIFIC_PASSWORD != '' && secrets.APPLE_TEAM_ID != '' }}
+        env:
+          MACOS_CERTIFICATE_P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: zsh python_gui/sign_and_notarize_macos.sh
+
       - name: Create release archive
+        if: ${{ !(secrets.MACOS_CERTIFICATE_P12_BASE64 != '' && secrets.MACOS_CERTIFICATE_PASSWORD != '' && secrets.MACOS_SIGNING_IDENTITY != '' && secrets.APPLE_ID != '' && secrets.APPLE_APP_SPECIFIC_PASSWORD != '' && secrets.APPLE_TEAM_ID != '') }}
         run: ditto -c -k --sequesterRsrc --keepParent dist/MyDailyCash.app dist/MyDailyCash-macos.zip
 
       - name: Upload workflow artifact
