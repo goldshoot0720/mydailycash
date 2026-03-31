@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>今彩539 連續簽注收益試算</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: oklch(0.97 0.02 82);
+      --paper: oklch(0.995 0.01 90);
+      --paper-strong: oklch(0.94 0.03 86);
+      --ink: oklch(0.27 0.03 42);
+      --muted: oklch(0.5 0.03 48);
+      --line: oklch(0.84 0.04 78);
+      --orange: oklch(0.77 0.17 63);
+      --orange-deep: oklch(0.63 0.18 49);
+      --red: oklch(0.64 0.22 28);
+      --green: oklch(0.64 0.16 145);
+      --shadow: 0 22px 48px color-mix(in oklab, var(--orange) 14%, transparent);
+      --radius-xl: 30px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1220px;
+      --space-xs: clamp(10px, 1.2vw, 12px);
+      --space-sm: clamp(14px, 1.6vw, 18px);
+      --space-md: clamp(20px, 2vw, 24px);
+      --space-lg: clamp(28px, 3vw, 40px);
+      --space-xl: clamp(40px, 5vw, 64px);
+      --font-title: "Noto Serif TC", "PingFang TC", "Microsoft JhengHei", serif;
+      --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top left, color-mix(in oklab, var(--orange) 18%, transparent) 0, transparent 34%),
+        radial-gradient(circle at bottom right, color-mix(in oklab, var(--paper-strong) 40%, transparent) 0, transparent 40%),
+        linear-gradient(180deg, oklch(0.98 0.025 88), var(--bg));
+      color: var(--ink);
+      font-family: var(--font-body);
+    }
+
+    body {
+      padding: 24px 20px 56px;
+    }
+
+    .shell {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: grid;
+      gap: var(--space-md);
+    }
+
+    .hero,
+    .panel {
+      background: color-mix(in oklab, var(--paper) 92%, white);
+      border: 1px solid color-mix(in oklab, var(--line) 78%, white);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      position: relative;
+      padding: clamp(24px, 3.5vw, 40px);
+      display: grid;
+      gap: var(--space-sm);
+      isolation: isolate;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: auto -8% -38% auto;
+      width: min(360px, 45vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 30%, color-mix(in oklab, white 55%, var(--orange)) 0 12%, transparent 13%),
+        radial-gradient(circle, color-mix(in oklab, var(--orange) 78%, white) 0 54%, transparent 55%);
+      opacity: 0.12;
+      z-index: -1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: color-mix(in oklab, var(--orange) 14%, white);
+      color: var(--orange-deep);
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      font-family: var(--font-title);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 3.2vw, 3.9rem);
+      line-height: 0.98;
+      max-width: none;
+      white-space: nowrap;
+    }
+
+    .lead {
+      max-width: none;
+      font-size: 0.96rem;
+      line-height: 1.7;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .meta-chip {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: var(--paper-strong);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+      align-items: start;
+    }
+
+    .panel {
+      padding: var(--space-md);
+    }
+
+    .content-stack {
+      display: grid;
+      gap: var(--space-md);
+    }
+
+    .form-grid {
+      display: grid;
+      gap: var(--space-sm) var(--space-md);
+    }
+
+    .number-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      align-items: start;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      position: relative;
+    }
+
+    .field.is-hidden {
+      display: none;
+    }
+
+    .field-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .field span,
+    .helper,
+    .source-note,
+    .empty {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .pack-toggle {
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      line-height: 1;
+      box-shadow: none;
+    }
+
+    .pack-toggle.active {
+      background: color-mix(in oklab, var(--orange) 18%, white);
+      border-color: color-mix(in oklab, var(--orange) 56%, white);
+      color: var(--orange-deep);
+    }
+
+    .pack-field input {
+      background: color-mix(in oklab, var(--paper-strong) 72%, white);
+      color: var(--orange-deep);
+      border-style: dashed;
+    }
+
+    .pack-field::after {
+      content: "包牌";
+      position: absolute;
+      inset: auto 0 16px 0;
+      display: grid;
+      place-items: center;
+      color: var(--orange-deep);
+      font-weight: 800;
+      pointer-events: none;
+    }
+
+    .layout > .panel:first-child .form-grid {
+      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+      grid-template-areas:
+        "copy mode"
+        "copy numbers"
+        "actions actions"
+        "meta meta";
+      align-items: start;
+    }
+
+    .input-copy {
+      grid-area: copy;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      padding-top: 6px;
+    }
+
+    .mode-row {
+      grid-area: mode;
+      justify-content: flex-start;
+      align-self: start;
+      min-height: 38px;
+      padding-top: 2px;
+    }
+
+    .number-grid {
+      grid-area: numbers;
+    }
+
+    .action-row {
+      grid-area: actions;
+    }
+
+    .meta-info {
+      grid-area: meta;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: nowrap;
+    }
+
+    .mode-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .mode-btn {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1;
+      box-shadow: none;
+    }
+
+    .mode-btn.active {
+      background: color-mix(in oklab, var(--orange) 18%, white);
+      border-color: color-mix(in oklab, var(--orange) 56%, white);
+      color: var(--orange-deep);
+    }
+
+    input[type="number"] {
+      width: 100%;
+      appearance: textfield;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: white;
+      color: var(--ink);
+      font: inherit;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 16px 10px;
+      transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: color-mix(in oklab, var(--orange) 78%, white);
+      box-shadow: 0 0 0 4px color-mix(in oklab, var(--orange) 14%, white);
+      transform: translateY(-1px);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .action-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: nowrap;
+    }
+
+    .selection-preview {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 42px;
+      flex-wrap: nowrap;
+      flex: 0 0 auto;
+    }
+
+    .preview-label {
+      color: var(--muted);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .preview-balls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .preview-empty {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 16px;
+      font: inherit;
+      font-size: 0.96rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 180ms ease, opacity 180ms ease, box-shadow 180ms ease;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .primary {
+      background: linear-gradient(135deg, color-mix(in oklab, var(--orange) 88%, white), var(--orange-deep));
+      color: white;
+      box-shadow: 0 12px 28px color-mix(in oklab, var(--orange) 34%, transparent);
+    }
+
+    .secondary {
+      background: var(--paper-strong);
+      color: var(--ink);
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-sm);
+      margin-bottom: 28px;
+    }
+
+    .stat {
+      padding: 18px 20px;
+      border-radius: 22px;
+      background:
+        linear-gradient(180deg, color-mix(in oklab, white 72%, transparent), transparent),
+        var(--paper-strong);
+      border: 1px solid color-mix(in oklab, var(--line) 72%, white);
+      min-height: 152px;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .stat-value {
+      font-size: clamp(1.2rem, 1.55vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.02;
+      overflow-wrap: anywhere;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-note {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.65;
+      max-width: 28ch;
+    }
+
+    .stat-value.positive {
+      color: var(--green);
+    }
+
+    .stat-value.negative {
+      color: var(--red);
+    }
+
+    .results-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: var(--space-sm);
+      margin-bottom: 20px;
+    }
+
+    .results-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .draw-row {
+      display: grid;
+      grid-template-columns: minmax(132px, 178px) minmax(0, 1fr) minmax(112px, 132px) minmax(118px, 160px);
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border-radius: 22px;
+      background: white;
+      border: 1px solid color-mix(in oklab, var(--line) 72%, white);
+    }
+
+    .issue-block {
+      display: grid;
+      gap: 4px;
+    }
+
+    .issue {
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .date {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .balls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .ball {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: inline-grid;
+      place-items: center;
+      font-weight: 800;
+      color: white;
+      background: linear-gradient(180deg, color-mix(in oklab, white 20%, var(--orange)), var(--orange-deep));
+      box-shadow: inset 0 2px 5px color-mix(in oklab, white 28%, transparent);
+    }
+
+    .ball.hit {
+      background: linear-gradient(180deg, color-mix(in oklab, white 16%, var(--red)), color-mix(in oklab, black 10%, var(--red)));
+    }
+
+    .ball.pack-hit {
+      background: linear-gradient(180deg, color-mix(in oklab, white 20%, var(--green)), color-mix(in oklab, black 4%, var(--green)));
+    }
+
+    .match-box,
+    .prize-box {
+      display: grid;
+      gap: 4px;
+      justify-items: start;
+    }
+
+    .match-count,
+    .prize {
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .tag {
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: white;
+      background: var(--muted);
+    }
+
+    .tag.win {
+      background: var(--red);
+    }
+
+    .source-note a {
+      color: inherit;
+    }
+
+    .status {
+      min-height: 24px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      white-space: nowrap;
+    }
+
+    .status.error {
+      color: var(--red);
+    }
+
+    .status.success {
+      color: var(--green);
+    }
+
+    .empty {
+      padding: 26px;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      text-align: center;
+      background: color-mix(in oklab, var(--paper-strong) 60%, white);
+    }
+
+    @media (max-width: 1200px) {
+      .summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 1040px) {
+      .layout > .panel:first-child .form-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "copy"
+          "mode"
+          "numbers"
+          "actions"
+          "meta";
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding-inline: 14px;
+      }
+
+      .panel,
+      .hero {
+        border-radius: 24px;
+      }
+
+      .number-grid,
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-wrap: wrap;
+      }
+
+      .action-row {
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .meta-info {
+        display: grid;
+        gap: 8px;
+      }
+
+      h1 {
+        white-space: normal;
+      }
+
+      .lead {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+      }
+
+      .draw-row {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+
+      .results-head {
+        flex-direction: column;
+        align-items: start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow">官方今彩539結果比對</div>
+      <h1>輸入一注號碼，看完整連續簽注收益</h1>
+      <p class="lead">
+        輸入 5 個 1 至 39 的號碼後，頁面會依據台灣彩券今彩539官方開獎結果，列出每一期號碼。
+        一般號碼使用橘色彩球，對中的號碼以紅色彩球標註，並同時計算每期中獎獎金、總投注成本、總獎金與淨收益。
+      </p>
+      <div class="hero-meta">
+        <div class="meta-chip">單注售價 NT$50</div>
+        <div class="meta-chip">獎金規則: 2中50 / 3中300 / 4中20,000 / 5中8,000,000</div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <section class="panel">
+        <div class="form-grid">
+          <div class="input-copy">
+            <h2>輸入號碼</h2>
+            <p class="helper">請輸入 5 個不重複號碼，或把其中一欄切成包牌，<br>改用 4 固定號碼加 35 注配號收益試算。</p>
+          </div>
+
+          <div class="mode-row">
+            <button class="mode-btn active" data-mode="single" type="button">單注 / 包牌</button>
+            <button class="mode-btn" data-mode="combo6" type="button">6連碰</button>
+            <button class="mode-btn" data-mode="combo7" type="button">7連碰</button>
+            <button class="mode-btn" data-mode="combo8" type="button">8連碰</button>
+            <button class="mode-btn" data-mode="combo9" type="button">9連碰</button>
+          </div>
+
+          <div class="number-grid" id="number-grid">
+            <label class="field">
+              <div class="field-head">
+                <span>號碼 1</span>
+                <button class="pack-toggle" data-pack-index="0" type="button">包牌</button>
+              </div>
+              <input type="number" min="1" max="39" inputmode="numeric" required>
+            </label>
+            <label class="field">
+              <div class="field-head">
+                <span>號碼 2</span>
+                <button class="pack-toggle" data-pack-index="1" type="button">包牌</button>
+              </div>
+              <input type="number" min="1" max="39" inputmode="numeric" required>
+            </label>
+            <label class="field">
+              <div class="field-head">
+                <span>號碼 3</span>
+                <button class="pack-toggle" data-pack-index="2" type="button">包牌</button>
+              </div>
+              <input type="number" min="1" max="39" inputmode="numeric" required>
+            </label>
+            <label class="field">
+              <div class="field-head">
+                <span>號碼 4</span>
+                <button class="pack-toggle" data-pack-index="3" type="button">包牌</button>
+              </div>
+              <input type="number" min="1" max="39" inputmode="numeric" required>
+            </label>
+            <label class="field">
+              <div class="field-head">
+                <span>號碼 5</span>
+                <button class="pack-toggle" data-pack-index="4" type="button">包牌</button>
+              </div>
+              <input type="number" min="1" max="39" inputmode="numeric" required>
+            </label>
+            <label class="field is-hidden">
+              <div class="field-head">
+                <span>號碼 6</span>
+              </div>
+              <input type="number" min="1" max="39" inputmode="numeric" required>
+            </label>
+            <label class="field is-hidden">
+              <div class="field-head">
+                <span>號碼 7</span>
+              </div>
+              <input type="number" min="1" max="39" inputmode="numeric" required>
+            </label>
+            <label class="field is-hidden">
+              <div class="field-head">
+                <span>號碼 8</span>
+              </div>
+              <input type="number" min="1" max="39" inputmode="numeric" required>
+            </label>
+            <label class="field is-hidden">
+              <div class="field-head">
+                <span>號碼 9</span>
+              </div>
+              <input type="number" min="1" max="39" inputmode="numeric" required>
+            </label>
+          </div>
+
+          <div class="action-row">
+            <div class="actions">
+              <button class="primary" id="analyze-btn" type="button">開始比對</button>
+              <button class="secondary" id="sample-btn" type="button">帶入範例號碼</button>
+              <button class="secondary" id="clear-btn" type="button">清除號碼</button>
+              <button class="secondary" id="refresh-btn" type="button">重新抓取官方資料</button>
+            </div>
+            <div class="selection-preview">
+              <span class="preview-label">目前選號</span>
+              <div class="preview-balls" id="preview-balls">
+                <span class="preview-empty">尚未輸入</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="meta-info">
+            <div id="status" class="status">
+              目前先使用內建的官方 115 年度快照資料，按下「重新抓取官方資料」可再同步一次。
+            </div>
+
+            <div class="source-note">
+              資料來源:
+              <a href="https://www.taiwanlottery.com/lotto/result/daily_cash" target="_blank" rel="noreferrer noopener">台灣彩券各期獎號及開獎結果</a>
+              與
+              <a href="https://www.taiwanlottery.com/lotto/info/daily_cash" target="_blank" rel="noreferrer noopener">今彩539遊戲介紹</a>。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="content-stack">
+          <div class="summary" id="summary">
+            <article class="stat">
+              <div class="stat-label">連續簽注期數</div>
+              <div class="stat-value" id="draw-count">0</div>
+              <div class="stat-note">目前資料中可比對的期數總數。</div>
+            </article>
+            <article class="stat">
+              <div class="stat-label">總投注成本</div>
+              <div class="stat-value" id="cost-total">NT$0</div>
+              <div class="stat-note" id="cost-note">每期單注 50 元。<br>連續買到資料最後一期。</div>
+            </article>
+            <article class="stat">
+              <div class="stat-label">總中獎獎金</div>
+              <div class="stat-value" id="prize-total">NT$0</div>
+              <div class="stat-note" id="prize-note">依官方固定獎金規則累計。</div>
+            </article>
+            <article class="stat">
+              <div class="stat-label">淨收益</div>
+              <div class="stat-value" id="net-total">NT$0</div>
+              <div class="stat-note" id="net-note">尚未開始比對。</div>
+            </article>
+          </div>
+
+          <div class="results-head">
+            <div>
+              <h2>每期對獎結果</h2>
+              <p class="helper" id="selection-note">先輸入 5 個號碼，再查看每一期對中情況。</p>
+            </div>
+          </div>
+
+          <div id="results" class="results-list">
+            <div class="empty">輸入 5 個號碼後，這裡會列出每一期橘色彩球、紅色命中球與該期獎金。</div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const PRIZES = {
+      5: 8000000,
+      4: 20000,
+      3: 300,
+      2: 50,
+      1: 0,
+      0: 0
+    };
+
+    const TICKET_PRICE = 50;
+    const OFFICIAL_TEXT_URL = "https://r.jina.ai/http://https://www.taiwanlottery.com/lotto/result/daily_cash/";
+
+    const embeddedDraws = [
+      {"issue":"115000079","rocDate":"115/03/30","numbers":["06","08","20","22","32"]},
+      {"issue":"115000078","rocDate":"115/03/28","numbers":["06","09","11","16","17"]},
+      {"issue":"115000077","rocDate":"115/03/27","numbers":["08","18","24","34","35"]},
+      {"issue":"115000076","rocDate":"115/03/26","numbers":["14","17","20","24","37"]},
+      {"issue":"115000075","rocDate":"115/03/25","numbers":["03","13","31","33","36"]},
+      {"issue":"115000074","rocDate":"115/03/24","numbers":["10","20","28","29","36"]},
+      {"issue":"115000073","rocDate":"115/03/23","numbers":["07","12","24","29","35"]},
+      {"issue":"115000072","rocDate":"115/03/21","numbers":["07","14","15","19","22"]},
+      {"issue":"115000071","rocDate":"115/03/20","numbers":["03","11","15","33","39"]},
+      {"issue":"115000070","rocDate":"115/03/19","numbers":["05","23","25","30","37"]},
+      {"issue":"115000069","rocDate":"115/03/18","numbers":["21","22","31","32","35"]},
+      {"issue":"115000068","rocDate":"115/03/17","numbers":["11","13","19","22","27"]},
+      {"issue":"115000067","rocDate":"115/03/16","numbers":["17","19","21","29","34"]},
+      {"issue":"115000066","rocDate":"115/03/14","numbers":["08","10","18","20","34"]},
+      {"issue":"115000065","rocDate":"115/03/13","numbers":["02","05","11","12","15"]},
+      {"issue":"115000064","rocDate":"115/03/12","numbers":["04","05","07","23","35"]},
+      {"issue":"115000063","rocDate":"115/03/11","numbers":["05","15","26","37","38"]},
+      {"issue":"115000062","rocDate":"115/03/10","numbers":["11","12","14","17","32"]},
+      {"issue":"115000061","rocDate":"115/03/09","numbers":["07","12","15","32","38"]},
+      {"issue":"115000060","rocDate":"115/03/07","numbers":["15","17","18","34","36"]},
+      {"issue":"115000059","rocDate":"115/03/06","numbers":["19","24","29","32","34"]},
+      {"issue":"115000058","rocDate":"115/03/05","numbers":["01","04","08","12","36"]},
+      {"issue":"115000057","rocDate":"115/03/04","numbers":["04","08","12","16","17"]},
+      {"issue":"115000056","rocDate":"115/03/03","numbers":["02","19","21","32","35"]},
+      {"issue":"115000055","rocDate":"115/03/02","numbers":["03","12","20","21","27"]},
+      {"issue":"115000054","rocDate":"115/03/01","numbers":["02","08","15","29","31"]},
+      {"issue":"115000053","rocDate":"115/02/28","numbers":["02","04","13","26","27"]},
+      {"issue":"115000052","rocDate":"115/02/27","numbers":["01","22","23","37","39"]},
+      {"issue":"115000051","rocDate":"115/02/26","numbers":["03","06","09","31","39"]},
+      {"issue":"115000050","rocDate":"115/02/25","numbers":["05","22","28","35","36"]},
+      {"issue":"115000049","rocDate":"115/02/24","numbers":["16","23","25","32","36"]},
+      {"issue":"115000048","rocDate":"115/02/23","numbers":["03","10","12","27","36"]},
+      {"issue":"115000047","rocDate":"115/02/22","numbers":["08","13","16","24","25"]},
+      {"issue":"115000046","rocDate":"115/02/21","numbers":["01","08","19","20","25"]},
+      {"issue":"115000045","rocDate":"115/02/20","numbers":["04","11","22","23","27"]},
+      {"issue":"115000044","rocDate":"115/02/19","numbers":["08","15","19","25","27"]},
+      {"issue":"115000043","rocDate":"115/02/18","numbers":["08","10","12","32","33"]},
+      {"issue":"115000042","rocDate":"115/02/17","numbers":["06","08","11","20","21"]},
+      {"issue":"115000041","rocDate":"115/02/16","numbers":["05","07","15","18","34"]},
+      {"issue":"115000040","rocDate":"115/02/15","numbers":["11","13","18","22","34"]},
+      {"issue":"115000039","rocDate":"115/02/14","numbers":["01","03","13","31","36"]},
+      {"issue":"115000038","rocDate":"115/02/13","numbers":["04","28","31","33","34"]},
+      {"issue":"115000037","rocDate":"115/02/12","numbers":["01","12","21","35","37"]},
+      {"issue":"115000036","rocDate":"115/02/11","numbers":["11","15","18","29","33"]},
+      {"issue":"115000035","rocDate":"115/02/10","numbers":["10","11","17","22","36"]},
+      {"issue":"115000034","rocDate":"115/02/09","numbers":["16","21","25","31","35"]},
+      {"issue":"115000033","rocDate":"115/02/07","numbers":["03","08","22","27","32"]},
+      {"issue":"115000032","rocDate":"115/02/06","numbers":["01","06","29","32","34"]},
+      {"issue":"115000031","rocDate":"115/02/05","numbers":["08","09","13","32","35"]},
+      {"issue":"115000030","rocDate":"115/02/04","numbers":["08","17","22","27","28"]},
+      {"issue":"115000029","rocDate":"115/02/03","numbers":["03","05","11","15","23"]},
+      {"issue":"115000028","rocDate":"115/02/02","numbers":["06","08","31","37","38"]},
+      {"issue":"115000027","rocDate":"115/01/31","numbers":["05","12","16","21","32"]},
+      {"issue":"115000026","rocDate":"115/01/30","numbers":["16","17","29","30","36"]},
+      {"issue":"115000025","rocDate":"115/01/29","numbers":["06","11","28","36","37"]},
+      {"issue":"115000024","rocDate":"115/01/28","numbers":["10","11","23","24","29"]},
+      {"issue":"115000023","rocDate":"115/01/27","numbers":["05","17","18","23","32"]},
+      {"issue":"115000022","rocDate":"115/01/26","numbers":["06","15","23","26","30"]},
+      {"issue":"115000021","rocDate":"115/01/24","numbers":["06","07","15","35","37"]},
+      {"issue":"115000020","rocDate":"115/01/23","numbers":["03","11","12","21","31"]},
+      {"issue":"115000019","rocDate":"115/01/22","numbers":["03","06","11","30","34"]},
+      {"issue":"115000018","rocDate":"115/01/21","numbers":["04","15","23","27","38"]},
+      {"issue":"115000017","rocDate":"115/01/20","numbers":["16","19","23","25","34"]},
+      {"issue":"115000016","rocDate":"115/01/19","numbers":["12","16","23","24","29"]},
+      {"issue":"115000015","rocDate":"115/01/17","numbers":["02","10","11","24","37"]},
+      {"issue":"115000014","rocDate":"115/01/16","numbers":["18","19","22","27","29"]},
+      {"issue":"115000013","rocDate":"115/01/15","numbers":["01","02","03","19","36"]},
+      {"issue":"115000012","rocDate":"115/01/14","numbers":["01","02","16","33","35"]},
+      {"issue":"115000011","rocDate":"115/01/13","numbers":["06","16","17","19","31"]},
+      {"issue":"115000010","rocDate":"115/01/12","numbers":["03","13","18","24","30"]},
+      {"issue":"115000009","rocDate":"115/01/10","numbers":["11","25","26","34","38"]},
+      {"issue":"115000008","rocDate":"115/01/09","numbers":["01","12","14","22","34"]},
+      {"issue":"115000007","rocDate":"115/01/08","numbers":["03","08","10","21","30"]},
+      {"issue":"115000006","rocDate":"115/01/07","numbers":["05","10","14","15","28"]},
+      {"issue":"115000005","rocDate":"115/01/06","numbers":["01","02","06","11","33"]},
+      {"issue":"115000004","rocDate":"115/01/05","numbers":["10","16","18","34","39"]},
+      {"issue":"115000003","rocDate":"115/01/03","numbers":["22","23","31","32","38"]},
+      {"issue":"115000002","rocDate":"115/01/02","numbers":["17","18","25","36","39"]},
+      {"issue":"115000001","rocDate":"115/01/01","numbers":["15","16","18","29","36"]}
+    ];
+
+    let draws = embeddedDraws.slice();
+    const preservedInputValues = Array(9).fill("");
+    let currentMode = "single";
+
+    const inputs = Array.from(document.querySelectorAll("#number-grid input"));
+    const fields = Array.from(document.querySelectorAll("#number-grid .field"));
+    const packToggles = Array.from(document.querySelectorAll(".pack-toggle"));
+    const modeButtons = Array.from(document.querySelectorAll(".mode-btn"));
+    const statusNode = document.querySelector("#status");
+    const resultsNode = document.querySelector("#results");
+    const drawCountNode = document.querySelector("#draw-count");
+    const costTotalNode = document.querySelector("#cost-total");
+    const costNoteNode = document.querySelector("#cost-note");
+    const prizeTotalNode = document.querySelector("#prize-total");
+    const prizeNoteNode = document.querySelector("#prize-note");
+    const netTotalNode = document.querySelector("#net-total");
+    const netNoteNode = document.querySelector("#net-note");
+    const selectionNoteNode = document.querySelector("#selection-note");
+    const previewBallsNode = document.querySelector("#preview-balls");
+
+    function padNumber(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function combination(n, r) {
+      if (r < 0 || r > n) {
+        return 0;
+      }
+
+      let result = 1;
+      for (let index = 1; index <= r; index += 1) {
+        result = (result * (n - index + 1)) / index;
+      }
+      return Math.round(result);
+    }
+
+    function formatCurrency(value) {
+      return `NT$${value.toLocaleString("zh-TW")}`;
+    }
+
+    function parseRocDate(rocDate) {
+      const [rocYear, month, day] = rocDate.split("/").map(Number);
+      const adYear = rocYear + 1911;
+      return `${adYear}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    }
+
+    function getPackIndex() {
+      return packToggles.findIndex((button) => button.classList.contains("active"));
+    }
+
+    function getVisibleFieldCount(mode = currentMode) {
+      if (mode === "combo6") return 6;
+      if (mode === "combo7") return 7;
+      if (mode === "combo8") return 8;
+      if (mode === "combo9") return 9;
+      return 5;
+    }
+
+    function isComboMode(mode = currentMode) {
+      return mode === "combo6" || mode === "combo7" || mode === "combo8" || mode === "combo9";
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      const visibleCount = getVisibleFieldCount(mode);
+      const gridColumns = visibleCount;
+
+      modeButtons.forEach((button) => {
+        const active = button.dataset.mode === mode;
+        button.classList.toggle("active", active);
+      });
+
+      fields.forEach((field, index) => {
+        field.classList.toggle("is-hidden", index >= visibleCount);
+      });
+
+      packToggles.forEach((button) => {
+        button.style.display = mode === "single" ? "" : "none";
+      });
+
+      const numberGrid = document.querySelector("#number-grid");
+      numberGrid.style.gridTemplateColumns = `repeat(${gridColumns}, minmax(0, 1fr))`;
+
+      if (mode !== "single") {
+        setPackIndex(-1);
+      }
+    }
+
+    function setPackIndex(nextIndex) {
+      packToggles.forEach((button, index) => {
+        const wasActive = button.classList.contains("active");
+        const active = index === nextIndex;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+        button.textContent = active ? "取消包牌" : "包牌";
+        fields[index].classList.toggle("pack-field", active);
+        inputs[index].disabled = active;
+        inputs[index].placeholder = active ? "包牌" : "";
+
+        if (active && !wasActive) {
+          preservedInputValues[index] = inputs[index].value;
+          inputs[index].value = "";
+        } else if (!active && wasActive) {
+          inputs[index].value = preservedInputValues[index] || "";
+        }
+      });
+    }
+
+    function getSelection() {
+      const packIndex = currentMode === "single" ? getPackIndex() : -1;
+      const visibleCount = getVisibleFieldCount();
+      const rawValues = inputs.slice(0, visibleCount).map((input) => input.value.trim());
+
+      if (isComboMode()) {
+        if (rawValues.some((value) => value === "")) {
+          throw new Error(`請先完整輸入 ${visibleCount} 個號碼。`);
+        }
+
+        const numbers = rawValues.map((value) => Number(value));
+        if (numbers.some((value) => !Number.isInteger(value) || value < 1 || value > 39)) {
+          throw new Error("號碼必須是 1 到 39 的整數。");
+        }
+
+        const unique = new Set(numbers);
+        if (unique.size !== visibleCount) {
+          throw new Error(`${visibleCount} 個號碼不可重複。`);
+        }
+
+        const sorted = [...numbers].sort((a, b) => a - b).map(padNumber);
+        return {
+          mode: currentMode,
+          numbers: sorted,
+          packIndex: -1,
+          comboSize: visibleCount,
+          displayLabel: `${visibleCount}連碰 ${sorted.join(" ")}`
+        };
+      }
+
+      if (packIndex === -1) {
+        if (rawValues.some((value) => value === "")) {
+          throw new Error("請先完整輸入 5 個號碼。");
+        }
+
+        const numbers = rawValues.map((value) => Number(value));
+        if (numbers.some((value) => !Number.isInteger(value) || value < 1 || value > 39)) {
+          throw new Error("號碼必須是 1 到 39 的整數。");
+        }
+
+        const unique = new Set(numbers);
+        if (unique.size !== 5) {
+          throw new Error("5 個號碼不可重複。");
+        }
+
+        const sorted = [...numbers].sort((a, b) => a - b).map(padNumber);
+        return {
+          mode: "single",
+          numbers: sorted,
+          packIndex: -1,
+          displayLabel: sorted.join(" ")
+        };
+      }
+
+      const fixedValues = rawValues
+        .map((value, index) => (index === packIndex ? null : value))
+        .filter((value) => value !== null);
+
+      if (fixedValues.some((value) => value === "") || fixedValues.length !== 4) {
+        throw new Error("啟用包牌時，請輸入另外 4 個固定號碼。");
+      }
+
+      const numbers = fixedValues.map((value) => Number(value));
+      if (numbers.some((value) => !Number.isInteger(value) || value < 1 || value > 39)) {
+        throw new Error("固定號碼必須是 1 到 39 的整數。");
+      }
+
+      const unique = new Set(numbers);
+      if (unique.size !== 4) {
+        throw new Error("包牌模式下，4 個固定號碼不可重複。");
+      }
+
+      const sorted = [...numbers].sort((a, b) => a - b).map(padNumber);
+      return {
+        mode: "pack",
+        numbers: sorted,
+        packIndex,
+        displayLabel: `${sorted.join(" ")} + 包牌`
+      };
+    }
+
+    function applySelectionToInputs(selection) {
+      setMode("single");
+      setPackIndex(-1);
+      inputs.forEach((input) => {
+        input.value = "";
+      });
+      selection.numbers.forEach((value, index) => {
+        inputs[index].value = Number(value);
+      });
+      renderPreview(selection);
+    }
+
+    function getPrizeName(matchCount) {
+      if (matchCount === 5) return "頭獎";
+      if (matchCount === 4) return "貳獎";
+      if (matchCount === 3) return "參獎";
+      if (matchCount === 2) return "肆獎";
+      return "未中獎";
+    }
+
+    function renderBalls(numbers, selectedSet, packCoveredSet = new Set()) {
+      return numbers.map((number) => {
+        const hit = selectedSet.has(number);
+        const packHit = !hit && packCoveredSet.has(number);
+        return `<span class="ball${hit ? " hit" : packHit ? " pack-hit" : ""}">${number}</span>`;
+      }).join("");
+    }
+
+    function renderPreview(selection = null) {
+      if (!selection) {
+        previewBallsNode.innerHTML = '<span class="preview-empty">尚未輸入</span>';
+        return;
+      }
+
+      const balls = selection.numbers.map((number) => `<span class="ball">${number}</span>`).join("");
+      const packBadge = selection.mode === "pack" ? '<span class="tag win">包牌</span>' : "";
+      previewBallsNode.innerHTML = `${balls}${packBadge}`;
+    }
+
+    function updateSummary(rows, selection) {
+      drawCountNode.textContent = String(rows.length);
+      let costPerDraw = TICKET_PRICE;
+      if (selection.mode === "pack") {
+        costPerDraw = TICKET_PRICE * 35;
+      } else if (isComboMode(selection.mode)) {
+        costPerDraw = combination(selection.comboSize, 5) * TICKET_PRICE;
+      }
+      const costTotal = rows.length * costPerDraw;
+      const prizeTotal = rows.reduce((sum, row) => sum + row.prize, 0);
+      const netTotal = prizeTotal - costTotal;
+
+      costTotalNode.textContent = formatCurrency(costTotal);
+      prizeTotalNode.textContent = formatCurrency(prizeTotal);
+      netTotalNode.textContent = formatCurrency(netTotal);
+      netTotalNode.classList.remove("positive", "negative");
+
+      if (netTotal > 0) {
+        netTotalNode.classList.add("positive");
+      } else if (netTotal < 0) {
+        netTotalNode.classList.add("negative");
+      }
+
+      const wins = rows.filter((row) => row.prize > 0).length;
+      selectionNoteNode.textContent = `目前比對玩法: ${selection.displayLabel}，共 ${wins} 期中獎。`;
+      netNoteNode.innerHTML = `中獎 ${wins} 期，成本 ${formatCurrency(costTotal)}。<br>總獎金 ${formatCurrency(prizeTotal)}。`;
+
+      if (selection.mode === "pack") {
+        costNoteNode.innerHTML = `每期包牌 35 注。<br>每期成本 ${formatCurrency(costPerDraw)}。`;
+        prizeNoteNode.textContent = "依包牌 35 注總獎金累計。";
+      } else if (isComboMode(selection.mode)) {
+        costNoteNode.innerHTML = `每期 ${selection.comboSize} 連碰 ${combination(selection.comboSize, 5)} 注。<br>每期成本 ${formatCurrency(costPerDraw)}。`;
+        prizeNoteNode.textContent = `依 ${selection.comboSize} 連碰系統組合獎金累計。`;
+      } else {
+        costNoteNode.innerHTML = "每期單注 50 元。<br>連續買到資料最後一期。";
+        prizeNoteNode.textContent = "依官方固定獎金規則累計。";
+      }
+    }
+
+    function renderResults(selection) {
+      const selectedSet = new Set(selection.numbers);
+
+      const analyzed = draws.map((draw) => {
+        if (selection.mode === "pack") {
+          const fixedHits = draw.numbers.filter((number) => selectedSet.has(number));
+          const packCovered = draw.numbers.filter((number) => !selectedSet.has(number));
+          const fixedMatchCount = fixedHits.length;
+          const upgradedMatchCount = fixedMatchCount + 1;
+          const upgradedTickets = packCovered.length;
+          const baseTickets = 35 - upgradedTickets;
+          const prize = (upgradedTickets * PRIZES[upgradedMatchCount]) + (baseTickets * PRIZES[fixedMatchCount]);
+
+          return {
+            ...draw,
+            fixedHits,
+            packCovered,
+            packCoveredSet: new Set(packCovered),
+            matchCount: fixedMatchCount,
+            prize,
+            matchLabel: `固定中 ${fixedMatchCount} 個`,
+            tagLabel: prize > 0 ? "包牌收益" : "未中獎",
+            detailHtml: prize > 0 ? `包牌命中:<br>${packCovered.join(" ")}` : "本期未中獎"
+          };
+        }
+
+        if (isComboMode(selection.mode)) {
+          const hits = draw.numbers.filter((number) => selectedSet.has(number));
+          const hitCount = hits.length;
+          let prize = 0;
+
+          for (let matchCount = 2; matchCount <= Math.min(5, hitCount); matchCount += 1) {
+            const ticketCount = combination(hitCount, matchCount) * combination(selection.comboSize - hitCount, 5 - matchCount);
+            prize += ticketCount * PRIZES[matchCount];
+          }
+
+          return {
+            ...draw,
+            hits,
+            packCovered: [],
+            packCoveredSet: new Set(),
+            matchCount: hitCount,
+            prize,
+            matchLabel: `選中 ${hitCount} 個`,
+            tagLabel: prize > 0 ? `${selection.comboSize}連碰` : "未中獎",
+            detailHtml: prize > 0 ? `命中號碼:<br>${hits.join(" ")}` : "本期未中獎"
+          };
+        }
+
+        const hits = draw.numbers.filter((number) => selectedSet.has(number));
+        const matchCount = hits.length;
+        const prize = PRIZES[matchCount];
+
+        return {
+          ...draw,
+          hits,
+          packCovered: [],
+          packCoveredSet: new Set(),
+          matchCount,
+          prize,
+          matchLabel: `對中 ${matchCount} 個`,
+          tagLabel: getPrizeName(matchCount),
+          detailHtml: prize > 0 ? `命中號碼:<br>${hits.join(" ")}` : "本期未中獎"
+        };
+      });
+
+      updateSummary(analyzed, selection);
+
+      resultsNode.innerHTML = analyzed.map((draw) => `
+        <article class="draw-row">
+          <div class="issue-block">
+            <div class="issue">第 ${draw.issue} 期</div>
+            <div class="date">${draw.rocDate} / ${parseRocDate(draw.rocDate)}</div>
+          </div>
+          <div class="balls">${renderBalls(draw.numbers, selectedSet, draw.packCoveredSet)}</div>
+          <div class="match-box">
+            <div class="match-count">${draw.matchLabel}</div>
+            <div class="tag${draw.prize > 0 ? " win" : ""}">${draw.tagLabel}</div>
+          </div>
+          <div class="prize-box">
+            <div class="prize">${formatCurrency(draw.prize)}</div>
+            <div class="date">${draw.detailHtml}</div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function resetAnalysisState() {
+      drawCountNode.textContent = String(draws.length);
+      costTotalNode.textContent = formatCurrency(0);
+      costNoteNode.innerHTML = "每期單注 50 元。<br>連續買到資料最後一期。";
+      prizeTotalNode.textContent = formatCurrency(0);
+      prizeNoteNode.textContent = "依官方固定獎金規則累計。";
+      netTotalNode.textContent = formatCurrency(0);
+      netTotalNode.classList.remove("positive", "negative");
+      netNoteNode.textContent = "尚未開始比對。";
+      selectionNoteNode.textContent = "先輸入 5 個號碼，再查看每一期對中情況。";
+      resultsNode.innerHTML = '<div class="empty">輸入 5 個號碼後，這裡會列出每一期橘色彩球、紅色命中球與該期獎金。</div>';
+      renderPreview();
+    }
+
+    function setStatus(message, type = "") {
+      statusNode.textContent = message;
+      statusNode.className = `status${type ? ` ${type}` : ""}`;
+    }
+
+    function parseOfficialText(text) {
+      const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      const parsed = [];
+
+      for (let index = 0; index < lines.length; index += 1) {
+        const issueMatch = lines[index].match(/^第(\d+)期$/);
+        if (!issueMatch) {
+          continue;
+        }
+
+        const dateMatch = lines[index + 1] && lines[index + 1].match(/^開獎日期:(\d{2,3}\/\d{2}\/\d{2})$/);
+        if (!dateMatch) {
+          continue;
+        }
+
+        const numbers = [];
+        for (let cursor = index + 4; cursor < lines.length && numbers.length < 5; cursor += 1) {
+          if (/^\d{2}$/.test(lines[cursor])) {
+            numbers.push(lines[cursor]);
+          }
+        }
+
+        if (numbers.length === 5) {
+          parsed.push({
+            issue: issueMatch[1],
+            rocDate: dateMatch[1],
+            numbers
+          });
+        }
+      }
+
+      return parsed;
+    }
+
+    async function refreshOfficialData() {
+      setStatus("正在抓取官方資料...", "");
+
+      try {
+        const response = await fetch(OFFICIAL_TEXT_URL, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const text = await response.text();
+        const parsed = parseOfficialText(text);
+        if (!parsed.length) {
+          throw new Error("抓到資料，但無法解析開獎內容。");
+        }
+
+        draws = parsed;
+        const latest = parsed[0];
+        setStatus(`已重新同步 ${parsed.length} 期官方資料，最新期別為 ${latest.issue}（${latest.rocDate}）。`, "success");
+
+        try {
+          const selection = getSelection();
+          renderResults(selection);
+        } catch {
+          drawCountNode.textContent = String(draws.length);
+          costTotalNode.textContent = formatCurrency(0);
+          prizeTotalNode.textContent = formatCurrency(0);
+          netTotalNode.textContent = formatCurrency(0);
+          netTotalNode.classList.remove("positive", "negative");
+          netNoteNode.textContent = "資料已更新，等待新的比對號碼。";
+          selectionNoteNode.textContent = "先輸入 5 個號碼，再查看每一期對中情況。";
+        }
+      } catch (error) {
+        setStatus(`重新抓取失敗，已保留內建官方快照資料。原因: ${error.message}`, "error");
+      }
+    }
+
+    document.querySelector("#analyze-btn").addEventListener("click", () => {
+      try {
+        const selection = getSelection();
+        applySelectionToInputs(selection);
+        renderResults(selection);
+        setStatus(`已完成比對，共分析 ${draws.length} 期資料。`, "success");
+      } catch (error) {
+        setStatus(error.message, "error");
+      }
+    });
+
+    document.querySelector("#sample-btn").addEventListener("click", () => {
+      const sample = ["06", "08", "20", "22", "32"];
+      const selection = {
+        mode: "single",
+        numbers: sample,
+        packIndex: -1,
+        displayLabel: sample.join(" ")
+      };
+      applySelectionToInputs(selection);
+      renderResults(selection);
+      setStatus("已帶入範例號碼，這組號碼剛好命中最新一期頭獎。", "success");
+    });
+
+    document.querySelector("#clear-btn").addEventListener("click", () => {
+      inputs.forEach((input) => {
+        input.value = "";
+      });
+      preservedInputValues.fill("");
+      setMode("single");
+      setPackIndex(-1);
+      resetAnalysisState();
+      setStatus("已清除號碼。", "");
+    });
+
+    document.querySelector("#refresh-btn").addEventListener("click", refreshOfficialData);
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setMode(button.dataset.mode);
+        try {
+          renderPreview(getSelection());
+        } catch {
+          renderPreview();
+        }
+      });
+    });
+
+    packToggles.forEach((button, index) => {
+      button.addEventListener("click", () => {
+        const nextIndex = getPackIndex() === index ? -1 : index;
+        setPackIndex(nextIndex);
+        try {
+          renderPreview(getSelection());
+        } catch {
+          renderPreview();
+        }
+      });
+    });
+
+    inputs.forEach((input) => {
+      input.addEventListener("input", () => {
+        try {
+          renderPreview(getSelection());
+        } catch {
+          renderPreview();
+        }
+      });
+
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          document.querySelector("#analyze-btn").click();
+        }
+      });
+    });
+
+    resetAnalysisState();
+    setMode("single");
+    setPackIndex(-1);
+  </script>
+</body>
+</html>
