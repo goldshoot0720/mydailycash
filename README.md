@@ -6,6 +6,16 @@ This repository currently contains three versions of the project:
 - `python_gui/`: desktop subproject built with `tkinter`
 - `android_apk/`: Android app subproject that can be built into an APK
 
+## Python desktop subproject
+
+The `python_gui/` folder is a standalone Python desktop app.
+
+- Local macOS build helper: `python_gui/build_macos.sh`
+- GitHub Actions release workflow: `.github/workflows/release-macos-python.yml`
+- Tag release trigger: push a tag like `v1.0.3`
+
+When the workflow runs on GitHub, it builds `dist/MyDailyCash.app`, zips it as `dist/MyDailyCash-macos.zip`, and attaches that zip to the GitHub release.
+
 ## Android APK subproject
 
 The `android_apk/` folder is a standalone Android Studio project with:
