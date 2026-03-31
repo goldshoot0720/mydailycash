@@ -197,18 +197,34 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("今彩539 Python GUI 版")
-        self.geometry("1460x880")
-        self.minsize(1280, 760)
-
         self.mode_var = tk.StringVar(value="single")
         self.pack_index_var = tk.IntVar(value=-1)
         self.entries = []
         self.pack_buttons = []
         self.entry_holders = []
+        self.summary_cards = []
+        self.entry_grid = None
+        self.summary_frame = None
+        self._last_entry_columns = None
+        self._last_summary_columns = None
+        self._last_visible_count = None
+
+        self._configure_window()
 
         self._build_ui()
         self._apply_mode()
         self._clear_results()
+        self.bind("<Configure>", self._on_window_resize)
+
+    def _configure_window(self):
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        width = min(max(int(screen_width * 0.76), 1080), 1420)
+        height = min(max(int(screen_height * 0.86), 760), 940)
+        x = max((screen_width - width) // 2, 0)
+        y = max((screen_height - height) // 2, 0)
+        self.geometry(f"{width}x{height}+{x}+{y}")
+        self.minsize(1024, 700)
 
     def _build_ui(self):
         style = ttk.Style(self)
@@ -217,55 +233,60 @@ class App(tk.Tk):
         except tk.TclError:
             pass
 
+        style.configure("Header.TLabel", font=("Microsoft JhengHei", 21, "bold"))
+        style.configure("Subheader.TLabel", font=("Microsoft JhengHei", 10))
+        style.configure("SummaryValue.TLabel", font=("Microsoft JhengHei", 16, "bold"))
+        style.configure("SummaryNote.TLabel", font=("Microsoft JhengHei", 9))
+
         self.configure(bg="#f6ead1")
-        root = ttk.Frame(self, padding=16)
+        root = ttk.Frame(self, padding=12)
         root.pack(fill="both", expand=True)
 
-        header = ttk.Frame(root, padding=(8, 6, 8, 10))
+        header = ttk.Frame(root, padding=(6, 4, 6, 8))
         header.pack(fill="x")
-        ttk.Label(header, text="今彩539 Python GUI 版", font=("Microsoft JhengHei", 22, "bold")).pack(anchor="w")
-        ttk.Label(header, text="支援單注、包牌、6連碰、7連碰、8連碰、9連碰收益試算。", font=("Microsoft JhengHei", 11)).pack(anchor="w", pady=(8, 0))
+        ttk.Label(header, text="今彩539 Python GUI 版", style="Header.TLabel").pack(anchor="w")
+        ttk.Label(header, text="支援單注、包牌、6連碰、7連碰、8連碰、9連碰收益試算。", style="Subheader.TLabel").pack(anchor="w", pady=(4, 0))
 
-        form = ttk.LabelFrame(root, text="輸入設定", padding=16)
-        form.pack(fill="x", pady=(8, 12))
+        form = ttk.LabelFrame(root, text="輸入設定", padding=12)
+        form.pack(fill="x", pady=(6, 10))
 
         mode_row = ttk.Frame(form)
-        mode_row.pack(fill="x", pady=(0, 14))
+        mode_row.pack(fill="x", pady=(0, 10))
         for mode, label in [("single", "單注 / 包牌"), ("combo6", "6連碰"), ("combo7", "7連碰"), ("combo8", "8連碰"), ("combo9", "9連碰")]:
-            ttk.Radiobutton(mode_row, text=label, value=mode, variable=self.mode_var, command=self._apply_mode).pack(side="left", padx=(0, 10))
+            ttk.Radiobutton(mode_row, text=label, value=mode, variable=self.mode_var, command=self._apply_mode).pack(side="left", padx=(0, 8))
 
-        entry_grid = ttk.Frame(form)
-        entry_grid.pack(fill="x")
+        self.entry_grid = ttk.Frame(form)
+        self.entry_grid.pack(anchor="w")
         for index in range(9):
-            holder = ttk.Frame(entry_grid)
-            holder.grid(row=0, column=index, padx=4, pady=4, sticky="nsew")
+            holder = ttk.Frame(self.entry_grid, padding=(4, 2))
             ttk.Label(holder, text=f"號碼 {index + 1}").pack(anchor="center")
             entry = ttk.Entry(holder, width=6, justify="center", font=("Microsoft JhengHei", 12))
-            entry.pack(pady=(4, 4))
+            entry.pack(pady=(2, 3))
             pack_button = ttk.Button(holder, text="包牌", width=8, command=lambda idx=index: self.toggle_pack(idx))
             pack_button.pack()
             self.entries.append(entry)
             self.pack_buttons.append(pack_button)
-            entry_grid.grid_columnconfigure(index, weight=1)
+            self.entry_holders.append(holder)
 
         button_row = ttk.Frame(form)
-        button_row.pack(fill="x", pady=(16, 0))
+        button_row.pack(fill="x", pady=(10, 0))
         ttk.Button(button_row, text="開始比對", command=self.analyze).pack(side="left")
         ttk.Button(button_row, text="帶入範例", command=self.fill_sample).pack(side="left", padx=8)
         ttk.Button(button_row, text="清除號碼", command=self.clear_inputs).pack(side="left")
 
         self.summary_var = tk.StringVar(value="尚未開始比對。")
-        ttk.Label(form, textvariable=self.summary_var, font=("Microsoft JhengHei", 10)).pack(anchor="w", pady=(14, 0))
+        ttk.Label(form, textvariable=self.summary_var, font=("Microsoft JhengHei", 10)).pack(anchor="w", pady=(10, 0))
 
-        summary = ttk.Frame(root)
-        summary.pack(fill="x", pady=(0, 12))
+        self.summary_frame = ttk.Frame(root)
+        self.summary_frame.pack(fill="x", pady=(0, 8))
         self.stat_vars = {"draws": tk.StringVar(value=str(len(DRAWS))), "cost": tk.StringVar(value="NT$0"), "prize": tk.StringVar(value="NT$0"), "net": tk.StringVar(value="NT$0")}
         for key, label in [("draws", "連續簽注期數"), ("cost", "總投注成本"), ("prize", "總中獎獎金"), ("net", "淨收益")]:
-            card = ttk.LabelFrame(summary, text=label, padding=14)
-            card.pack(side="left", fill="both", expand=True, padx=4)
-            ttk.Label(card, textvariable=self.stat_vars[key], font=("Microsoft JhengHei", 20, "bold")).pack(anchor="w")
+            card = ttk.LabelFrame(self.summary_frame, text=label, padding=10)
+            ttk.Label(card, textvariable=self.stat_vars[key], style="SummaryValue.TLabel").pack(anchor="w")
+            ttk.Label(card, text="依目前玩法與歷史期數更新。", style="SummaryNote.TLabel").pack(anchor="w", pady=(4, 0))
+            self.summary_cards.append(card)
 
-        table_box = ttk.LabelFrame(root, text="每期對獎結果", padding=12)
+        table_box = ttk.LabelFrame(root, text="每期對獎結果", padding=10)
         table_box.pack(fill="both", expand=True)
         columns = ("issue", "date", "numbers", "match", "prize", "detail")
         self.tree = ttk.Treeview(table_box, columns=columns, show="headings", height=20)
@@ -273,11 +294,12 @@ class App(tk.Tk):
         widths = {"issue": 110, "date": 110, "numbers": 220, "match": 120, "prize": 140, "detail": 320}
         for column in columns:
             self.tree.heading(column, text=headings[column])
-            self.tree.column(column, width=widths[column], anchor="w")
+            self.tree.column(column, width=widths[column], minwidth=96, anchor="w", stretch=True)
         self.tree.pack(side="left", fill="both", expand=True)
         scrollbar = ttk.Scrollbar(table_box, orient="vertical", command=self.tree.yview)
         scrollbar.pack(side="right", fill="y")
         self.tree.configure(yscrollcommand=scrollbar.set)
+        self._relayout_summary_cards()
 
     def _apply_mode(self):
         mode = self.mode_var.get()
@@ -285,11 +307,7 @@ class App(tk.Tk):
         if mode != "single":
             self.pack_index_var.set(-1)
 
-        for index, holder in enumerate(self.entry_holders):
-            if index < visible:
-                holder.grid()
-            else:
-                holder.grid_remove()
+        self._relayout_entry_holders(visible)
 
         for index, entry in enumerate(self.entries):
             if index < visible:
@@ -303,6 +321,69 @@ class App(tk.Tk):
                 button.configure(state="normal", text="取消包牌" if self.pack_index_var.get() == index else "包牌")
             else:
                 button.configure(state="disabled", text="包牌")
+
+    def _entry_columns_for_width(self, visible_count):
+        width = max(self.winfo_width(), self.winfo_reqwidth())
+        if visible_count <= 5:
+            return visible_count
+        if width >= 1360:
+            return min(5, visible_count)
+        return min(4, visible_count)
+
+    def _relayout_entry_holders(self, visible_count=None):
+        visible_count = visible_count or LotteryCalculator.visible_count(self.mode_var.get())
+        columns = self._entry_columns_for_width(visible_count)
+        if (
+            self._last_entry_columns == columns
+            and self._last_visible_count == visible_count
+            and all(holder.winfo_manager() for holder in self.entry_holders[:visible_count])
+        ):
+            return
+
+        self._last_entry_columns = columns
+        self._last_visible_count = visible_count
+        for column in range(9):
+            self.entry_grid.grid_columnconfigure(column, weight=0)
+
+        for index, holder in enumerate(self.entry_holders):
+            if index >= visible_count:
+                holder.grid_remove()
+                continue
+            row, column = divmod(index, columns)
+            holder.grid(row=row, column=column, padx=8, pady=4, sticky="w")
+
+        for column in range(columns):
+            self.entry_grid.grid_columnconfigure(column, weight=0)
+
+    def _summary_columns_for_width(self):
+        width = max(self.winfo_width(), self.winfo_reqwidth())
+        if width >= 1180:
+            return 4
+        if width >= 900:
+            return 2
+        return 1
+
+    def _relayout_summary_cards(self):
+        columns = self._summary_columns_for_width()
+        if self._last_summary_columns == columns:
+            return
+
+        self._last_summary_columns = columns
+        for column in range(4):
+            self.summary_frame.grid_columnconfigure(column, weight=0)
+
+        for index, card in enumerate(self.summary_cards):
+            row, column = divmod(index, columns)
+            card.grid(row=row, column=column, padx=4, pady=4, sticky="nsew")
+
+        for column in range(columns):
+            self.summary_frame.grid_columnconfigure(column, weight=1, uniform="summary")
+
+    def _on_window_resize(self, event):
+        if event.widget is not self:
+            return
+        self._relayout_entry_holders()
+        self._relayout_summary_cards()
 
     def toggle_pack(self, index):
         if self.mode_var.get() != "single":

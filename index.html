@@ -21,7 +21,7 @@
       --radius-xl: 30px;
       --radius-lg: 20px;
       --radius-md: 14px;
-      --max: 1220px;
+      --max: 1540px;
       --space-xs: clamp(10px, 1.2vw, 12px);
       --space-sm: clamp(14px, 1.6vw, 18px);
       --space-md: clamp(20px, 2vw, 24px);
@@ -48,11 +48,11 @@
     }
 
     body {
-      padding: 24px 20px 56px;
+      padding: clamp(18px, 2vw, 28px) clamp(14px, 1.8vw, 24px) clamp(40px, 4vw, 64px);
     }
 
     .shell {
-      max-width: var(--max);
+      width: min(var(--max), 100%);
       margin: 0 auto;
       display: grid;
       gap: var(--space-md);
@@ -113,19 +113,15 @@
 
     h1 {
       font-size: clamp(1.45rem, 2.3vw, 2.7rem);
-      line-height: 0.98;
-      max-width: none;
-      white-space: nowrap;
+      line-height: 1.05;
+      max-width: 18ch;
     }
 
     .lead {
-      max-width: none;
+      max-width: 72ch;
       font-size: 0.96rem;
       line-height: 1.7;
       color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .hero-meta {
@@ -561,6 +557,42 @@
       background: color-mix(in oklab, var(--paper-strong) 60%, white);
     }
 
+    @media (min-width: 1280px) {
+      .layout {
+        grid-template-columns: minmax(440px, 520px) minmax(0, 1fr);
+      }
+
+      .layout > .panel {
+        min-height: 100%;
+      }
+
+      .layout > .panel:last-child {
+        position: sticky;
+        top: 24px;
+      }
+    }
+
+    @media (max-width: 1360px) {
+      .action-row,
+      .meta-info {
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .actions {
+        flex-wrap: wrap;
+      }
+
+      .selection-preview {
+        flex: 1 1 100%;
+        min-height: 0;
+      }
+
+      .draw-row {
+        grid-template-columns: minmax(124px, 152px) minmax(0, 1fr) minmax(104px, 124px) minmax(104px, 132px);
+      }
+    }
+
     @media (max-width: 1200px) {
       .summary {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -609,16 +641,6 @@
       .meta-info {
         display: grid;
         gap: 8px;
-      }
-
-      h1 {
-        white-space: normal;
-      }
-
-      .lead {
-        white-space: normal;
-        overflow: visible;
-        text-overflow: clip;
       }
 
       .draw-row {
