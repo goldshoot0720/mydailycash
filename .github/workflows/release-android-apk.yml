@@ -24,18 +24,28 @@ jobs:
           java-version: "17"
           cache: gradle
 
-      - name: Decode Android keystore
+      - name: Determine Android build mode
+        id: android-build
         working-directory: android_apk
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
-            echo "Missing ANDROID_KEYSTORE_BASE64 secret" >&2
-            exit 1
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$ANDROID_KEY_ALIAS" ] && [ -n "$ANDROID_KEY_PASSWORD" ]; then
+            echo "build_task=assembleRelease" >> "$GITHUB_OUTPUT"
+            echo "apk_path=app/build/outputs/apk/release/app-release.apk" >> "$GITHUB_OUTPUT"
+            echo "asset_name=MyDailyCash-android-${GITHUB_REF_NAME}.apk" >> "$GITHUB_OUTPUT"
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > release-keystore.jks
+          else
+            echo "Android signing secrets are missing; falling back to debug APK."
+            echo "build_task=assembleDebug" >> "$GITHUB_OUTPUT"
+            echo "apk_path=app/build/outputs/apk/debug/app-debug.apk" >> "$GITHUB_OUTPUT"
+            echo "asset_name=MyDailyCash-android-${GITHUB_REF_NAME}-debug.apk" >> "$GITHUB_OUTPUT"
           fi
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > release-keystore.jks
 
-      - name: Build release APK
+      - name: Build Android APK
         working-directory: android_apk
         env:
           ANDROID_KEYSTORE_PATH: release-keystore.jks
@@ -43,17 +53,13 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          if [ -z "$ANDROID_KEYSTORE_PASSWORD" ] || [ -z "$ANDROID_KEY_ALIAS" ] || [ -z "$ANDROID_KEY_PASSWORD" ]; then
-            echo "Missing Android signing secrets" >&2
-            exit 1
-          fi
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew "${{ steps.android-build.outputs.build_task }}"
 
       - name: Prepare APK asset
         run: |
           mkdir -p dist
-          cp android_apk/app/build/outputs/apk/release/app-release.apk "dist/MyDailyCash-android-${GITHUB_REF_NAME}.apk"
+          cp "android_apk/${{ steps.android-build.outputs.apk_path }}" "dist/${{ steps.android-build.outputs.asset_name }}"
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
