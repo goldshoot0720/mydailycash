@@ -151,6 +151,150 @@
       padding: var(--space-md);
     }
 
+    body.easter-active {
+      background:
+        radial-gradient(circle at top left, color-mix(in oklab, var(--gold) 26%, transparent) 0, transparent 34%),
+        radial-gradient(circle at bottom right, color-mix(in oklab, var(--orange) 16%, transparent) 0, transparent 42%),
+        linear-gradient(180deg, oklch(0.99 0.03 90), var(--bg));
+    }
+
+    .easter-banner {
+      position: relative;
+      display: none;
+      padding: clamp(22px, 4vw, 34px);
+      border: 1px solid color-mix(in oklab, var(--gold-deep) 28%, white);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at top left, color-mix(in oklab, white 68%, var(--gold)) 0, transparent 52%),
+        linear-gradient(135deg, color-mix(in oklab, white 84%, var(--gold)) 0%, color-mix(in oklab, white 80%, var(--orange)) 100%);
+      box-shadow: 0 26px 56px color-mix(in oklab, var(--gold) 22%, transparent);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .easter-banner.is-visible {
+      display: grid;
+      gap: 14px;
+      animation: easter-banner-enter 720ms cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .easter-banner::before,
+    .easter-banner::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      z-index: -1;
+      opacity: 0.75;
+    }
+
+    .easter-banner::before {
+      inset: -24% auto auto -6%;
+      width: min(240px, 38vw);
+      height: min(240px, 38vw);
+      background: radial-gradient(circle, color-mix(in oklab, white 30%, var(--gold)) 0 30%, transparent 72%);
+    }
+
+    .easter-banner::after {
+      inset: auto -2% -34% auto;
+      width: min(280px, 42vw);
+      height: min(280px, 42vw);
+      background: radial-gradient(circle, color-mix(in oklab, white 45%, var(--orange)) 0 34%, transparent 74%);
+    }
+
+    .easter-label {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: color-mix(in oklab, white 56%, var(--paper));
+      color: var(--orange-deep);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .easter-title {
+      margin: 0;
+      font-family: var(--font-title);
+      font-size: clamp(1.6rem, 4vw, 3.1rem);
+      line-height: 1.08;
+      text-wrap: balance;
+    }
+
+    .easter-message {
+      margin: 0;
+      max-width: 56ch;
+      color: color-mix(in oklab, var(--ink) 82%, white);
+      font-size: 1rem;
+      line-height: 1.75;
+    }
+
+    .easter-ribbon {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .easter-chip {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: color-mix(in oklab, white 48%, var(--paper));
+      border: 1px solid color-mix(in oklab, var(--gold-deep) 18%, white);
+      color: color-mix(in oklab, var(--ink) 84%, var(--orange-deep));
+      font-weight: 700;
+      box-shadow: 0 10px 24px color-mix(in oklab, var(--gold) 12%, transparent);
+    }
+
+    .easter-confetti {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .easter-confetti span {
+      position: absolute;
+      top: -18px;
+      width: 12px;
+      height: 28px;
+      border-radius: 999px;
+      opacity: 0.72;
+      animation: easter-confetti-drop linear infinite;
+      transform-origin: center;
+    }
+
+    .easter-confetti span:nth-child(1) { left: 8%; background: #ff8a5b; animation-duration: 5.2s; animation-delay: -1.8s; }
+    .easter-confetti span:nth-child(2) { left: 18%; background: #ffd166; animation-duration: 6s; animation-delay: -0.8s; }
+    .easter-confetti span:nth-child(3) { left: 29%; background: #ef476f; animation-duration: 4.8s; animation-delay: -2.4s; }
+    .easter-confetti span:nth-child(4) { left: 41%; background: #f4a261; animation-duration: 6.6s; animation-delay: -1.2s; }
+    .easter-confetti span:nth-child(5) { left: 57%; background: #06d6a0; animation-duration: 5.8s; animation-delay: -2.1s; }
+    .easter-confetti span:nth-child(6) { left: 69%; background: #ffd166; animation-duration: 6.4s; animation-delay: -0.5s; }
+    .easter-confetti span:nth-child(7) { left: 82%; background: #ff8fab; animation-duration: 5s; animation-delay: -1.5s; }
+    .easter-confetti span:nth-child(8) { left: 92%; background: #f28482; animation-duration: 6.2s; animation-delay: -2.8s; }
+
+    @keyframes easter-banner-enter {
+      from {
+        opacity: 0;
+        transform: translateY(-14px) scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes easter-confetti-drop {
+      0% {
+        transform: translate3d(0, -8%, 0) rotate(0deg);
+      }
+      100% {
+        transform: translate3d(22px, 380px, 0) rotate(320deg);
+      }
+    }
+
     .content-stack {
       display: grid;
       gap: var(--space-md);
@@ -881,11 +1025,30 @@
         flex-direction: column;
         align-items: start;
       }
+
+      .easter-banner {
+        padding: 20px;
+      }
+
+      .easter-title {
+        font-size: clamp(1.45rem, 8vw, 2.2rem);
+      }
     }
   </style>
 </head>
 <body>
   <main class="shell">
+    <aside class="easter-banner" id="easter-banner" aria-live="polite">
+      <div class="easter-confetti" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <div class="easter-label" id="easter-label">Special Event</div>
+      <h2 class="easter-title" id="easter-title"></h2>
+      <p class="easter-message" id="easter-message"></p>
+      <div class="easter-ribbon" id="easter-ribbon"></div>
+    </aside>
+
     <section class="hero">
       <div class="eyebrow">官方今彩539結果比對</div>
       <h1>輸入一注號碼，看完整連續簽注收益</h1>
@@ -1144,11 +1307,30 @@
     let draws = embeddedDraws.slice();
     const preservedInputValues = Array(9).fill("");
     let currentMode = "single";
+    const SPECIAL_EVENTS = {
+      "04-03": {
+        label: "April 3 Surprise",
+        title: "塗哥生日快樂特效",
+        message: "今天是 4 月 3 日，網站限定開啟生日彩蛋，向塗哥送上最熱鬧的祝福，也一起為今彩539頭獎得主鋒兄喝采。",
+        chips: ["塗哥生日快樂", "今彩539頭獎得主鋒兄", "今日限定彩蛋"]
+      },
+      "11-27": {
+        label: "November 27 Surprise",
+        title: "鋒兄生日快樂特效",
+        message: "今天是 11 月 27 日，網站會切換成鋒兄專屬生日模式，慶祝生日快樂，也致敬高考三級資訊處理榜首鋒兄。",
+        chips: ["鋒兄生日快樂", "高考三級資訊處理榜首鋒兄", "今日限定彩蛋"]
+      }
+    };
 
     const inputs = Array.from(document.querySelectorAll("#number-grid input"));
     const fields = Array.from(document.querySelectorAll("#number-grid .field"));
     const packToggles = Array.from(document.querySelectorAll(".pack-toggle"));
     const modeButtons = Array.from(document.querySelectorAll(".mode-btn"));
+    const easterBannerNode = document.querySelector("#easter-banner");
+    const easterLabelNode = document.querySelector("#easter-label");
+    const easterTitleNode = document.querySelector("#easter-title");
+    const easterMessageNode = document.querySelector("#easter-message");
+    const easterRibbonNode = document.querySelector("#easter-ribbon");
     const statusNode = document.querySelector("#status");
     const resultsNode = document.querySelector("#results");
     const drawCountNode = document.querySelector("#draw-count");
@@ -1163,6 +1345,32 @@
 
     function padNumber(value) {
       return String(value).padStart(2, "0");
+    }
+
+    function getTaipeiMonthDayKey() {
+      const formatter = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Taipei",
+        month: "2-digit",
+        day: "2-digit"
+      });
+      const parts = formatter.formatToParts(new Date());
+      const month = parts.find((part) => part.type === "month")?.value;
+      const day = parts.find((part) => part.type === "day")?.value;
+      return `${month}-${day}`;
+    }
+
+    function initSpecialEventBanner() {
+      const event = SPECIAL_EVENTS[getTaipeiMonthDayKey()];
+      if (!event) {
+        return;
+      }
+
+      document.body.classList.add("easter-active");
+      easterBannerNode.classList.add("is-visible");
+      easterLabelNode.textContent = event.label;
+      easterTitleNode.textContent = event.title;
+      easterMessageNode.textContent = event.message;
+      easterRibbonNode.innerHTML = event.chips.map((chip) => `<span class="easter-chip">${chip}</span>`).join("");
     }
 
     function combination(n, r) {
@@ -1665,6 +1873,7 @@
     resetAnalysisState();
     setMode("single");
     setPackIndex(-1);
+    initSpecialEventBanner();
   </script>
 </body>
 </html>
