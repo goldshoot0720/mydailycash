@@ -430,6 +430,10 @@ private fun DailyCashApp() {
                 SummaryCard(summary = summary)
             }
 
+            item {
+                MarriageReasonSection()
+            }
+
             if (results.isEmpty()) {
                 item {
                     EmptyStateCard()

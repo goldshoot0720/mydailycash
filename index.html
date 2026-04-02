@@ -930,6 +930,121 @@
       background: color-mix(in oklab, var(--paper-strong) 60%, white);
     }
 
+    .marriage-panel {
+      display: grid;
+      gap: var(--space-md);
+      background:
+        radial-gradient(circle at top right, color-mix(in oklab, var(--gold) 24%, transparent) 0, transparent 34%),
+        linear-gradient(135deg, color-mix(in oklab, white 84%, var(--paper)) 0%, color-mix(in oklab, white 76%, var(--orange)) 100%);
+    }
+
+    .marriage-head {
+      display: grid;
+      gap: 10px;
+      max-width: 72ch;
+    }
+
+    .marriage-kicker {
+      display: inline-flex;
+      width: fit-content;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: color-mix(in oklab, white 55%, var(--gold));
+      color: var(--orange-deep);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+
+    .marriage-layout {
+      display: grid;
+      grid-template-columns: minmax(240px, 360px) minmax(0, 1fr);
+      gap: var(--space-md);
+      align-items: start;
+    }
+
+    .marriage-select {
+      width: 100%;
+      appearance: none;
+      border: 1px solid color-mix(in oklab, var(--line) 86%, white);
+      border-radius: 18px;
+      background: color-mix(in oklab, white 78%, var(--paper));
+      color: var(--ink);
+      padding: 16px 18px;
+      font: inherit;
+      line-height: 1.4;
+      box-shadow: inset 0 1px 0 color-mix(in oklab, white 60%, transparent);
+    }
+
+    .marriage-select:focus {
+      outline: 2px solid color-mix(in oklab, var(--orange) 65%, white);
+      outline-offset: 3px;
+    }
+
+    .marriage-note {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.7;
+    }
+
+    .marriage-card {
+      display: grid;
+      gap: 14px;
+      min-height: 100%;
+      padding: clamp(20px, 2vw, 28px);
+      border: 1px solid color-mix(in oklab, var(--line) 82%, white);
+      border-radius: 24px;
+      background: color-mix(in oklab, white 82%, var(--paper));
+      box-shadow: 0 18px 36px color-mix(in oklab, var(--orange) 10%, transparent);
+    }
+
+    .marriage-card.is-empty {
+      border-style: dashed;
+      background: color-mix(in oklab, white 86%, var(--paper-strong));
+    }
+
+    .marriage-card h3 {
+      margin: 0;
+      font-family: var(--font-title);
+      font-size: clamp(1.35rem, 2vw, 2rem);
+      line-height: 1.12;
+    }
+
+    .marriage-summary,
+    .marriage-punchline {
+      margin: 0;
+      line-height: 1.8;
+    }
+
+    .marriage-summary {
+      color: color-mix(in oklab, var(--ink) 88%, white);
+    }
+
+    .marriage-punchline {
+      padding-top: 12px;
+      border-top: 1px solid color-mix(in oklab, var(--line) 76%, white);
+      color: var(--orange-deep);
+      font-weight: 700;
+    }
+
+    .marriage-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .marriage-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: color-mix(in oklab, white 38%, var(--gold));
+      color: color-mix(in oklab, var(--ink) 82%, var(--orange-deep));
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
     @media (min-width: 1280px) {
       .layout {
         grid-template-columns: minmax(440px, 520px) minmax(0, 1fr);
@@ -1024,6 +1139,10 @@
       .results-head {
         flex-direction: column;
         align-items: start;
+      }
+
+      .marriage-layout {
+        grid-template-columns: 1fr;
       }
 
       .easter-banner {
@@ -1207,6 +1326,47 @@
         </div>
       </section>
     </section>
+
+    <section class="panel marriage-panel" aria-labelledby="marriage-reason-title">
+      <div class="marriage-head">
+        <span class="marriage-kicker">ABSURD LOVE LOGIC</span>
+        <h2 id="marriage-reason-title">史上最瞎結婚理由選單</h2>
+        <p class="lead">
+          鋒兄、塗哥都把今彩五三九講成月老分部。選一條最離譜的理由，看看中獎、命運和婚禮怎麼被硬湊成同一套宇宙觀。
+        </p>
+      </div>
+
+      <div class="marriage-layout">
+        <div>
+          <label class="field" for="marriage-reason-select">
+            <div class="field-head">
+              <span>理由選單</span>
+            </div>
+            <select class="marriage-select" id="marriage-reason-select">
+              <option value="">請選一條最瞎結婚理由</option>
+            </select>
+          </label>
+          <p class="marriage-note">
+            文案改寫自你提供的彩券牽紅線段子，風格走朋友間惡搞的荒謬甜感。
+          </p>
+        </div>
+
+        <article class="marriage-card is-empty" id="marriage-reason-card" aria-live="polite">
+          <h3 id="marriage-reason-card-title">還沒選理由</h3>
+          <p class="marriage-summary" id="marriage-reason-card-summary">
+            先從選單挑一條，看鋒兄和塗哥怎麼把開獎畫面講成結婚保證書。
+          </p>
+          <p class="marriage-punchline" id="marriage-reason-card-punchline">
+            中獎可以靠運氣，結婚理由靠的是一種不肯輸的想像力。
+          </p>
+          <div class="marriage-tags" id="marriage-reason-tags">
+            <span class="marriage-tag">今彩五三九</span>
+            <span class="marriage-tag">朋友間惡搞</span>
+            <span class="marriage-tag">最瞎但有點甜</span>
+          </div>
+        </article>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -1221,6 +1381,78 @@
 
     const TICKET_PRICE = 50;
     const OFFICIAL_TEXT_URL = "https://r.jina.ai/http://https://www.taiwanlottery.com/lotto/result/daily_cash/";
+    const MARRIAGE_REASON_OPTIONS = [
+      {
+        id: "feng-destiny",
+        title: "鋒兄說這不是求婚，是頭獎續約",
+        summary: "鋒兄堅持今彩五三九開獎那天，思敏遞來的號碼像直接蓋章。他看著獎金直直落袋，心也跟著被收編，硬說這段感情根本是中獎後的續約條款。",
+        punchline: "他說這不是衝動，是不娶就對不起那一連串太玄的號碼。",
+        tags: ["鋒兄", "思敏", "命中注定"]
+      },
+      {
+        id: "tu-dianming",
+        title: "塗哥說財神爺都點名了，不結不行",
+        summary: "塗哥看到蕙瑄隨手寫的牌一路開進中獎圈，整個人比播報員還激動。他認定這已經不是巧合，是財神爺在幫忙發喜帖。",
+        punchline: "他說都被點名成這樣了，再不走進禮堂真的很沒禮貌。",
+        tags: ["塗哥", "蕙瑄", "財神爺點名"]
+      },
+      {
+        id: "double-jackpot",
+        title: "一個思敏一個蕙瑄，雙雙開成頭獎圈",
+        summary: "鋒兄牽著思敏，塗哥牽著蕙瑄，兩邊都把今彩五三九講成戀愛證明。喝喜酒的人還沒舉杯，就先被這組雙頭獎愛情公式笑到流淚。",
+        punchline: "最瞎的是理由，最甜的是兩桌人最後居然都被說服了。",
+        tags: ["雙線故事", "頭獎圈", "婚禮笑點"]
+      },
+      {
+        id: "love-or-math",
+        title: "你說愛情是運氣，還是大型數學題",
+        summary: "原本只是隨手抄牌，結果一開獎全場像在驗證證明題。鋒兄和塗哥都認為，既然答案都算出來了，婚禮只是把等號補完整。",
+        punchline: "把戀愛講成公式很瞎，但中獎那一刻真的很難反駁。",
+        tags: ["數學題", "運氣論", "硬湊哲學"]
+      },
+      {
+        id: "moon-elder-539",
+        title: "今彩五三九比月老還積極牽紅線",
+        summary: "別人拜月老拿紅線，他們直接守著開獎畫面等答案。號碼一中，立刻宣布感情進度從曖昧跳到婚宴場勘。",
+        punchline: "只能說這條紅線不是牽太兇，是直接拿播報機器綁上的。",
+        tags: ["月老分部", "紅線", "開獎畫面"]
+      },
+      {
+        id: "heart-compiled",
+        title: "獎金落袋的同時，心也被收編",
+        summary: "鋒兄回憶那天最震撼的不是數字全中，而是自己連人生選項也一起改掉。他本來只是想領獎，最後連婚禮流程都在腦中排完。",
+        punchline: "他說號碼中獎是結果，心被收編才是主因。",
+        tags: ["收編", "獎金", "人生改道"]
+      },
+      {
+        id: "broadcast-jump",
+        title: "播報畫面一跳，塗哥也跟著跳",
+        summary: "蕙瑄隨手寫的牌一列出來，塗哥瞬間從觀眾席升格成命運代言人。他覺得連主持人的語氣都像在替婚禮暖場。",
+        punchline: "這已經不是看開獎，是看自己未來家族成員表。",
+        tags: ["播報畫面", "塗哥", "現場感"]
+      },
+      {
+        id: "lottery-vows",
+        title: "把中獎明細當成婚禮誓詞在背",
+        summary: "鋒兄認真到把那期號碼背得比結婚誓詞還熟，逢人就講思敏是自己的人生明牌。朋友原本只想聽八卦，最後被迫聽完一整段中獎告白。",
+        punchline: "誓詞可以忘，頭獎期號不能忘，這就是他的浪漫優先順序。",
+        tags: ["婚禮誓詞", "人生明牌", "鋒兄"]
+      },
+      {
+        id: "banquet-laughter",
+        title: "喝喜酒的人一桌一桌笑到歪掉",
+        summary: "婚宴現場最常聽到的不是祝百年好合，而是大家輪流複誦那句『號碼是她給的』。越講越像段子，偏偏兩位新郎都一臉這很合理。",
+        punchline: "最瞎的理由居然成了整場最有記憶點的祝酒詞。",
+        tags: ["喜酒現場", "朋友圍觀", "段子感"]
+      },
+      {
+        id: "tomorrow-ticket",
+        title: "如果幸福也能這樣瞎忙，我明天也買一張",
+        summary: "所有故事聽到最後，旁邊的人嘴上說太扯，心裡卻默默記下了開獎時間。畢竟看完兩組人把中獎講成牽手證明，誰不想試試看命運是不是也會亂發糖。",
+        punchline: "荒謬歸荒謬，但這種甜法真的會讓人想去投注站碰碰運氣。",
+        tags: ["旁觀者視角", "明天也買", "甜到想跟"]
+      }
+    ];
 
     const embeddedDraws = [
       {"issue":"115000079","rocDate":"115/03/30","numbers":["06","08","20","22","32"]},
@@ -1342,9 +1574,53 @@
     const netNoteNode = document.querySelector("#net-note");
     const selectionNoteNode = document.querySelector("#selection-note");
     const previewBallsNode = document.querySelector("#preview-balls");
+    const marriageReasonSelectNode = document.querySelector("#marriage-reason-select");
+    const marriageReasonCardNode = document.querySelector("#marriage-reason-card");
+    const marriageReasonCardTitleNode = document.querySelector("#marriage-reason-card-title");
+    const marriageReasonCardSummaryNode = document.querySelector("#marriage-reason-card-summary");
+    const marriageReasonCardPunchlineNode = document.querySelector("#marriage-reason-card-punchline");
+    const marriageReasonTagsNode = document.querySelector("#marriage-reason-tags");
 
     function padNumber(value) {
       return String(value).padStart(2, "0");
+    }
+
+    function renderMarriageReason(optionId = "") {
+      const option = MARRIAGE_REASON_OPTIONS.find((item) => item.id === optionId);
+
+      if (!option) {
+        marriageReasonCardNode.classList.add("is-empty");
+        marriageReasonCardTitleNode.textContent = "還沒選理由";
+        marriageReasonCardSummaryNode.textContent = "先從選單挑一條，看鋒兄和塗哥怎麼把開獎畫面講成結婚保證書。";
+        marriageReasonCardPunchlineNode.textContent = "中獎可以靠運氣，結婚理由靠的是一種不肯輸的想像力。";
+        marriageReasonTagsNode.innerHTML = [
+          "今彩五三九",
+          "朋友間惡搞",
+          "最瞎但有點甜"
+        ].map((tag) => `<span class="marriage-tag">${tag}</span>`).join("");
+        return;
+      }
+
+      marriageReasonCardNode.classList.remove("is-empty");
+      marriageReasonCardTitleNode.textContent = option.title;
+      marriageReasonCardSummaryNode.textContent = option.summary;
+      marriageReasonCardPunchlineNode.textContent = option.punchline;
+      marriageReasonTagsNode.innerHTML = option.tags
+        .map((tag) => `<span class="marriage-tag">${tag}</span>`)
+        .join("");
+    }
+
+    function initMarriageReasonMenu() {
+      marriageReasonSelectNode.innerHTML = [
+        '<option value="">請選一條最瞎結婚理由</option>',
+        ...MARRIAGE_REASON_OPTIONS.map((option) => `<option value="${option.id}">${option.title}</option>`)
+      ].join("");
+
+      marriageReasonSelectNode.addEventListener("change", (event) => {
+        renderMarriageReason(event.target.value);
+      });
+
+      renderMarriageReason();
     }
 
     function getTaipeiMonthDayKey() {
@@ -1874,6 +2150,7 @@
     setMode("single");
     setPackIndex(-1);
     initSpecialEventBanner();
+    initMarriageReasonMenu();
   </script>
 </body>
 </html>
