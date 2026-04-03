@@ -119,6 +119,22 @@
       max-width: 18ch;
     }
 
+    .ascii-art {
+      margin: 6px 0 0;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      background: color-mix(in oklab, var(--paper-strong) 70%, white);
+      color: color-mix(in oklab, var(--ink) 84%, var(--orange-deep));
+      font-family: "JetBrains Mono", "Fira Code", "Cascadia Mono", "Courier New", monospace;
+      font-size: clamp(0.62rem, 1.1vw, 0.86rem);
+      line-height: 1.2;
+      letter-spacing: 0.06em;
+      white-space: pre;
+      overflow-x: auto;
+      border: 1px dashed color-mix(in oklab, var(--line) 70%, white);
+      box-shadow: inset 0 0 0 1px color-mix(in oklab, white 80%, transparent);
+    }
+
     .lead {
       max-width: 72ch;
       font-size: 0.96rem;
@@ -1047,16 +1063,11 @@
 
     @media (min-width: 1280px) {
       .layout {
-        grid-template-columns: minmax(440px, 520px) minmax(0, 1fr);
+        grid-template-columns: 1fr;
       }
 
       .layout > .panel {
         min-height: 100%;
-      }
-
-      .layout > .panel:last-child {
-        position: sticky;
-        top: 24px;
       }
     }
 
@@ -1171,6 +1182,14 @@
     <section class="hero">
       <div class="eyebrow">官方今彩539結果比對</div>
       <h1>輸入一注號碼，看完整連續簽注收益</h1>
+      <pre class="ascii-art" aria-label="Feng Bro ASCII art">
+  ______ ____   _   _   ____   ____   ____   ____ 
+ |  ____|  _ \ | \ | | |  _ \ |  _ \ / __ \ / __ \
+ | |__  | |_) ||  \| | | |_) || |_) | |  | | |  | |
+ |  __| |  _ < | . ` | |  _ < |  _ <| |  | | |  | |
+ | |    | |_) || |\  | | |_) || |_) | |__| | |__| |
+ |_|    |____/ |_| \_| |____/ |____/ \____/ \____/
+ </pre>
       <p class="lead">
         輸入 5 個 1 至 39 的號碼後，頁面會依據台灣彩券今彩539官方開獎結果，列出每一期號碼。
         一般號碼使用橘色彩球，對中的號碼以紅色彩球標註，並同時計算每期中獎獎金、總投注成本、總獎金與淨收益。
